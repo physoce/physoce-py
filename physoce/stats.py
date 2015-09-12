@@ -2,30 +2,30 @@ import numpy as np
 import numpy.ma as ma
 
 def nancorr(x,y):
-# r = nancorr(x,y)
-#
-# calculate correlation matrix, treating NaN values as missing data
-	
-	x_msk = ma.masked_invalid(x)
-	y_msk = ma.masked_invalid(y)
-	r = ma.corrcoef(x_msk,y_msk)
-	return r
+    """ 
+    r = nancorr(x,y)
+    Calculate correlation matrix, treating NaN values as missing data
+    """	
+    x_msk = ma.masked_invalid(x)
+    y_msk = ma.masked_invalid(y)
+    r = ma.corrcoef(x_msk,y_msk)
+    return r
 	
 def maxcorr(x,y,**options):
-# (rmax,lag,ind) = maxcorr(x,y,**'maxlag'=int(len(x)/8)):
-#
-# Calculate the maximum lagged correlation between two 1D arrays
-# INPUTS
-# x,y are 1D arrays
-# OPTIONS
-# 'maxlag' the maximum number of lagged correlations to calculate (default: 1/4 of array length)
-# OUTPUT
-# r is the maximum correlation coefficient
-# lag is the lag of the maxiumum correlation (positive: y lags x)
-
+    """
+    (rmax,lag,ind) = maxcorr(x,y,**'maxlag'=int(len(x)/8)):
+    Calculate the maximum lagged correlation between two 1D arrays
+    Inputs:
+    x,y are 1D arrays
+    Options
+    'maxlag' the maximum number of lagged correlations to calculate (default: 1/4 of array length)
+    Output:
+    r is the maximum correlation coefficient
+    lag is the lag of the maxiumum correlation (positive: y lags x)
+    """
+    
     nrows = len(x)
     maxlag = int(np.floor(nrows/8))
-    masknan = True
     if ('maxlag' in options):
         maxlag = options['maxlag']   
     
