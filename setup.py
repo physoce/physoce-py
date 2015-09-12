@@ -5,4 +5,4 @@ setup(name='physoce',
       description='Python tools for Physical Oceanography at Moss Landing Marine Labs',
       author='Tom Connolly',
       author_email='tconnolly@mlml.calstate.edu',
-      packages=['physoce'])
+      packages=['physoce','physoce.obs'])
