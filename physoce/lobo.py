@@ -4,8 +4,11 @@ from datetime import datetime
 from matplotlib import dates
 from sys import maxsize
 
-def read_txt_data(data_file):      
+def dict = read_txt_data(data_file):     
+	# dict = read_txt_data(data_file)
+	# 
     # Read in MBARI LOBO data obtained in text format from http://www.mbari.org/lobo/getLOBOdata.htm
+    # Output: dictionary with variable names taken from column headers
     
     try:
         f = open(data_file)
