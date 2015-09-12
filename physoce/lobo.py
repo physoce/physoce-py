@@ -4,7 +4,7 @@ from datetime import datetime
 from matplotlib import dates
 from sys import maxsize
 
-def dict = read_txt_data(data_file):     
+def read_txt_data(data_file):     
 	# dict = read_txt_data(data_file)
 	# 
     # Read in MBARI LOBO data obtained in text format from http://www.mbari.org/lobo/getLOBOdata.htm
