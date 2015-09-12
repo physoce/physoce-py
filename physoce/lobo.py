@@ -2,6 +2,7 @@ import numpy as np
 import csv
 from datetime import datetime
 from matplotlib import dates
+from sys import maxsize
 
 def read_txt_data(data_file):      
     # Read in MBARI LOBO data obtained in text format from http://www.mbari.org/lobo/getLOBOdata.htm
@@ -9,10 +10,19 @@ def read_txt_data(data_file):
     try:
         f = open(data_file)
     except:
-        print("Cannot find " + data_file + " - you may need to edit lobo_data_path.py for your system")
+        print("Cannot find " + data_file)
+    
+    # see where the text starts in order to count header lines
+    # (blank lines may be present at beginning of file)
+    n = 0
+    for line in f:
+    	if line.find("LOBOVIZ") == 0:
+    		break
+    	n = n + 1
+    	
     
     csvraw = list(csv.reader(f))
-    hdrrow = 3 # or search for line with file name, and header is next row
+    hdrrow = n+2
     ncols = np.shape(csvraw[hdrrow+1])[0]
     
     # load numerical data into array 
@@ -36,6 +46,7 @@ def read_txt_data(data_file):
         date.append(datetime.strptime(row[0], "%m/%d/%Y %H:%M"))        
     
     # convert huge values to nan
+    np.seterr(invalid='ignore')
     data[data > 1e+300] = np.nan
         
     dnum = dates.date2num(date)
