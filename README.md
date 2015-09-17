@@ -16,6 +16,9 @@ Python code to import sub-packages:
 import physoce.obs
 
 CONTENTS
-stats/py module     - module containing functions related to statistics
+
+stats.py module     - module containing functions related to statistics
+
 obs/ sub-package    - modules for specific types of oceanographic data
-    lobo.py module  - module containing functions for working with MBARI LOBO mooring data
+
+obs/lobo.py module  - module containing functions for working with MBARI LOBO mooring data
