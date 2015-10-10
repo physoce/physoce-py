@@ -10,6 +10,7 @@ def read_txt_data(data_file):
     Output: dictionary with variable names taken from column headers
     """
     
+
     try:
         f = open(data_file)
     except:
@@ -34,7 +35,7 @@ def read_txt_data(data_file):
     firstcol = 2
     data = np.genfromtxt(data_file, 
                          delimiter=',', 
-                         skip_header=hdrrow, 
+                         skip_header=hdrrow+1, 
                          usecols=(np.arange(firstcol,ncols)))
     f.close()
     
