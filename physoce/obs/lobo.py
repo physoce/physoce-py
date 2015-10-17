@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import csv
 from datetime import datetime
 from matplotlib import dates
@@ -11,7 +10,6 @@ def read_txt_data(data_file):
     Output: dictionary with variable names taken from column headers
     """
     
-
     try:
         f = open(data_file)
     except:
@@ -25,7 +23,6 @@ def read_txt_data(data_file):
     		break
     	n = n + 1
     	
-    
     csvraw = list(csv.reader(f))
     hdrrow = n+2
     ncols = np.shape(csvraw[hdrrow+1])[0]
@@ -56,8 +53,6 @@ def read_txt_data(data_file):
     np.seterr(invalid='ignore')
     data[data > 1e+300] = np.nan
         
-    
-    
     ### Create a dictionary to be returned by this function 
     LoboDict = {}
     LoboDict["dnum"] = dnum
@@ -70,5 +65,10 @@ def read_txt_data(data_file):
         varkey = varstr.lower()[0:ui]
         LoboDict[varkey] = data[:,ii]
         ii = ii+1
-        
+    
+    # Check for variable-specific missing values
+    if 'waterdepth' in LoboDict:
+        missing = np.isclose(LoboDict['waterdepth'],-9.999)
+        LoboDict['waterdepth'][missing] = np.nan
+            
     return LoboDict
