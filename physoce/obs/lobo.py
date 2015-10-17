@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import csv
 from datetime import datetime
 from matplotlib import dates
@@ -47,9 +48,11 @@ def read_txt_data(data_file):
     # get date strings from first column and put into datetime format
     date = []
     for row in csvraw[hdrrow:]:
-        date.append(datetime.strptime(row[0], "%m/%d/%Y %H:%M"))        
+        date.append(datetime.strptime(row[0], "%m/%d/%Y %H:%M"))   
+    # use pandas datetimeindex format for greater flexibility     
+    date = pd.DatetimeIndex(date)
     
-    # convert huge values to nan
+    # convert huge values (missing data) to nan
     np.seterr(invalid='ignore')
     data[data > 1e+300] = np.nan
         
