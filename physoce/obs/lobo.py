@@ -48,7 +48,9 @@ def read_txt_data(data_file):
     # get date strings from first column and put into datetime format
     date = []
     for row in csvraw[hdrrow:]:
-        date.append(datetime.strptime(row[0], "%m/%d/%Y %H:%M"))   
+        date.append(datetime.strptime(row[0], "%m/%d/%Y %H:%M")) 
+    # date number  
+    dnum = dates.date2num(date)
     # use pandas datetimeindex format for greater flexibility     
     date = pd.DatetimeIndex(date)
     
@@ -56,7 +58,7 @@ def read_txt_data(data_file):
     np.seterr(invalid='ignore')
     data[data > 1e+300] = np.nan
         
-    dnum = dates.date2num(date)
+    
     
     ### Create a dictionary to be returned by this function 
     LoboDict = {}
