@@ -51,8 +51,6 @@ def read_txt_data(data_file):
         date.append(datetime.strptime(row[0], "%m/%d/%Y %H:%M")) 
     # date number  
     dnum = dates.date2num(date)
-    # use pandas datetimeindex format for greater flexibility     
-    date = pd.DatetimeIndex(date)
     
     # convert huge values (missing data) to nan
     np.seterr(invalid='ignore')
