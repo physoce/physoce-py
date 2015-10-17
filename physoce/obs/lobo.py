@@ -10,7 +10,6 @@ def read_txt_data(data_file):
     Output: dictionary with variable names taken from column headers
     """
     
-
     try:
         f = open(data_file)
     except:
@@ -24,7 +23,6 @@ def read_txt_data(data_file):
     		break
     	n = n + 1
     	
-    
     csvraw = list(csv.reader(f))
     hdrrow = n+2
     ncols = np.shape(csvraw[hdrrow+1])[0]
@@ -47,14 +45,14 @@ def read_txt_data(data_file):
     # get date strings from first column and put into datetime format
     date = []
     for row in csvraw[hdrrow:]:
-        date.append(datetime.strptime(row[0], "%m/%d/%Y %H:%M"))        
+        date.append(datetime.strptime(row[0], "%m/%d/%Y %H:%M")) 
+    # date number  
+    dnum = dates.date2num(date)
     
-    # convert huge values to nan
+    # convert huge values (missing data) to nan
     np.seterr(invalid='ignore')
     data[data > 1e+300] = np.nan
         
-    dnum = dates.date2num(date)
-    
     ### Create a dictionary to be returned by this function 
     LoboDict = {}
     LoboDict["dnum"] = dnum
@@ -67,5 +65,10 @@ def read_txt_data(data_file):
         varkey = varstr.lower()[0:ui]
         LoboDict[varkey] = data[:,ii]
         ii = ii+1
-        
+    
+    # Check for variable-specific missing values
+    if 'waterdepth' in LoboDict:
+        missing = np.isclose(LoboDict['waterdepth'],-9.999)
+        LoboDict['waterdepth'][missing] = np.nan
+            
     return LoboDict
