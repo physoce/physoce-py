@@ -1,5 +1,6 @@
 import numpy as np
 import numpy.ma as ma
+from scipy import stats as st
 
 def nancorr(x,y):
     """ 
@@ -50,3 +51,50 @@ def maxcorr(x,y,**options):
         
     return (rmax,lag,ind)
 	
+def rsig(r,nu):
+    """ p-value for correlation coefficient r, and degrees of freedom nu
+
+    INPUTS:
+    r - correlation coefficient
+    nu - degrees of freedom (N-2)
+    
+    OUTPUT:
+    p - significance level/p-value
+ 
+    significance levels of 0.05 and 0.01 correspond with Appendix E in
+    Emery and Thomson (2004) Data Analysis Methods in Physical 
+    Oceanography
+    """
+
+    # t value
+    t = r*np.sqrt(nu)/np.sqrt(1-r**2)
+
+    # significance level, using the "survival function" (1-cdf)
+    p = 2*(st.t.sf(t,nu))
+
+    return p
+    
+def rcrit(nu,sig=0.05):
+    """
+    Critical r (correlation coefficient), given significance level
+    and degrees of freedom.
+    
+    INPUTS:
+    nu - degrees of freedom (N-2)        
+    sig - significance level (default 0.05)
+    
+    OUTPUT:
+    rcrit - critical r value
+    
+    Values for 0.05 and 0.01 correspond with Appendix E in
+    Emery and Thomson (2004) Data Analysis Methods in Physical 
+    Oceanography
+    """
+    
+    # critical t value (this is equivalent to Matlab tinv function)
+    t = st.t.ppf(1 - sig/2,nu)
+    
+    # critical r value
+    rc = t/np.sqrt(t**2+nu)
+    
+    return rc
