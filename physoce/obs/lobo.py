@@ -3,11 +3,18 @@ import csv
 from datetime import datetime
 from matplotlib import dates
 
-def read_txt_data(data_file):     
+def read_txt_data(data_file,format='dict'):     
     """
-    dict = read_txt_data(data_file)
     Read in MBARI LOBO data file obtained in text format from http://www.mbari.org/lobo/getLOBOdata.htm
-    Output: dictionary with variable names taken from column headers
+    
+    Inputs:
+        data_file: path to text data
+        
+        format: output format
+            'dict' (default): dictionary
+            'dataframe' pandas DataFrame
+    
+    Output: dictionary (default) or pandas DataFrame with variable names taken from column headers
     """
     
     try:
@@ -55,8 +62,6 @@ def read_txt_data(data_file):
         
     ### Create a dictionary to be returned by this function 
     LoboDict = {}
-    LoboDict["dnum"] = dnum
-    LoboDict["date"] = date
     
     ### Loop through variables, adding keys and data to dictionary
     ii = 0
@@ -70,5 +75,11 @@ def read_txt_data(data_file):
     if 'waterdepth' in LoboDict:
         missing = np.isclose(LoboDict['waterdepth'],-9.999)
         LoboDict['waterdepth'][missing] = np.nan
-            
-    return LoboDict
+    
+    if format=='dataframe':
+        LoboDF = pd.DataFrame(LoboDict)
+        return LoboDF
+    else:
+        LoboDict["dnum"] = dnum
+        LoboDict["date"] = date
+        return LoboDict
