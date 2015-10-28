@@ -2,17 +2,20 @@ import numpy as np
 import csv
 from datetime import datetime
 from matplotlib import dates
+import pandas as pd
 
 def read_txt_data(data_file,format='dict'):     
     """
+    read_txt_data(data_file,format='dict'):   
     Read in MBARI LOBO data file obtained in text format from http://www.mbari.org/lobo/getLOBOdata.htm
     
     Inputs:
         data_file: path to text data
-        
+    
+    Options:
         format: output format
-            'dict' (default): dictionary
-            'dataframe' pandas DataFrame
+            format = 'dict' (default): dictionary
+            format = 'dataframe': pandas DataFrame
     
     Output: dictionary (default) or pandas DataFrame with variable names taken from column headers
     """
@@ -20,7 +23,7 @@ def read_txt_data(data_file,format='dict'):
     try:
         f = open(data_file)
     except:
-        print("Cannot find " + data_file)
+        print("Cannot find " + data_file)        
     
     # see where the text starts in order to count header lines
     # (blank lines may be present at beginning of file)
@@ -70,6 +73,9 @@ def read_txt_data(data_file,format='dict'):
         varkey = varstr.lower()[0:ui]
         LoboDict[varkey] = data[:,ii]
         ii = ii+1
+        
+    ### add date number variable    
+    LoboDict["dnum"] = dnum        
     
     # Check for variable-specific missing values
     if 'waterdepth' in LoboDict:
@@ -77,9 +83,8 @@ def read_txt_data(data_file,format='dict'):
         LoboDict['waterdepth'][missing] = np.nan
     
     if format=='dataframe':
-        LoboDF = pd.DataFrame(LoboDict)
+        LoboDF = pd.DataFrame(LoboDict,index=date)
         return LoboDF
     else:
-        LoboDict["dnum"] = dnum
-        LoboDict["date"] = date
+        LoboDict["date"] = date        
         return LoboDict
