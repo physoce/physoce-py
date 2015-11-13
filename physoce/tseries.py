@@ -17,31 +17,47 @@ def fillgapwithnan(x,date):
     """
           
     xnd = np.ndim(x) # remember original number of dims in x
+    
+    # flip dimensions so that columns correspons with dates
+    # check
+    
     x = np.array(x,ndmin=2) # make array 2D for general use
+    
+    # ensure that x is oriented correctly and has one dimension with same length as date
+    flipdim = False
+    if np.shape(x)[1] != np.shape(date)[0]:
+        x = x.transpose()
+        flipdim = True
+        print np.shape(x)
+        if np.shape(x)[1] != np.shape(date)[0]: 
+            raise Exception('one dimension of x must have same length as date')
     
     # find most common timedelta
     alldeltat = np.diff(date)
     deltat = stats.mode(alldeltat)[0][0] # stats.mode returns (value, number of occurences) in arrays
     
     # build new date array
-    t = date[0]
+    t = date[1]
     newdate = [date[0]]
     newx = np.array(x[:,0],ndmin=2)
     cnt = 1 # counter for the indices in the input array x (along the time dimension)
-    while(t<=date[-1]):
+    while(date[cnt-1]<date[-1]):
         # if there is an actual date near t, use this date and corresponding data
         if abs(date[cnt]-t) < deltat/2:
             newdate.append(date[cnt])
-            newx = np.hstack((newx,np.array(x[:,cnt],ndmin=2)))
+            newx = np.vstack((newx,np.array(x[:,cnt],ndmin=2)))
             cnt = cnt+1
         # if there is no date near t, create a date and fill data with NaN
         else:
             newdate.append(t)
-            newx = np.hstack((newx,np.nan*np.ones(np.shape(np.array(x[:,cnt],ndmin=2)))))
+            newx = np.vstack((newx,np.nan*np.ones(np.shape(np.array(x[:,cnt],ndmin=2)))))
         t = t+deltat
         
-    # put data back into original form
+    ## put data back into original form
+    #if flipdim == True:
+    #    newx = newx.transpose()
+    
     if xnd == 1:
-        newx = newx[0] # reduce back to 1D array if necessary
+        newx = newx.flatten() # reduce back to 1D array if necessary
            
     return (newx,newdate)

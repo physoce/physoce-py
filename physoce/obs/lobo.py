@@ -2,9 +2,10 @@ import numpy as np
 import csv
 from datetime import datetime
 from matplotlib import dates
+from physoce import tseries
 import pandas as pd
 
-def read_txt_data(data_file,format='dict'):     
+def read_txt_data(data_file,format='dict',fillgap=False):     
     """
     read_txt_data(data_file,format='dict'):   
     Read in MBARI LOBO data file obtained in text format from http://www.mbari.org/lobo/getLOBOdata.htm
@@ -56,12 +57,16 @@ def read_txt_data(data_file,format='dict'):
     date = []
     for row in csvraw[hdrrow:]:
         date.append(datetime.strptime(row[0], "%m/%d/%Y %H:%M")) 
-    # date number  
-    dnum = dates.date2num(date)
     
     # convert huge values (missing data) to nan
     np.seterr(invalid='ignore')
     data[data > 1e+300] = np.nan
+    
+    if fillgap == True:
+        (data,date) = tseries.fillgapwithnan(data,date)
+    
+    # date number  
+    dnum = dates.date2num(date)
         
     ### Create a dictionary to be returned by this function 
     LoboDict = {}
