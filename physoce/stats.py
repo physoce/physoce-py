@@ -11,7 +11,7 @@ def nancorr(x,y):
     y_msk = ma.masked_invalid(y)
     r = ma.corrcoef(x_msk,y_msk)
     return r
-	
+
 def maxcorr(x,y,**options):
     """
     (rmax,lag,ind) = maxcorr(x,y,**'maxlag'=int(len(x)/8)):
