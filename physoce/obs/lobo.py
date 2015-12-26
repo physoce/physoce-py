@@ -3,7 +3,12 @@ import csv
 from datetime import datetime
 from matplotlib import dates
 from physoce import tseries
-import pandas as pd
+try:
+    import pandas as pd
+except ImportError:
+    pdimp = False
+else:
+    pdimp = True
 
 def read_txt_data(data_file,format='dict',fillgap=False):     
     """
@@ -86,6 +91,10 @@ def read_txt_data(data_file,format='dict',fillgap=False):
     if 'waterdepth' in LoboDict:
         missing = np.isclose(LoboDict['waterdepth'],-9.999)
         LoboDict['waterdepth'][missing] = np.nan
+    
+    if pdimp == False and format == 'dataframe':
+        format = 'dict'
+        print "Warning: error importing pandas, loading LOBO data in dictionary format instead"
     
     if format=='dataframe':
         LoboDF = pd.DataFrame(LoboDict,index=date)
