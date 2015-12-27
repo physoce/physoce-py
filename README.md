@@ -17,10 +17,14 @@ import physoce.obs
 
 CONTENTS
 
-stats.py module         - module containing functions related to statistics
+io.py module         	- input/output 
+
+stats.py module         - statistics
 
 surfacewaves.py module  - surface gravity wave calculations
 
+tseries.py module  		- time series 
+
 obs/ sub-package        - modules for specific types of oceanographic data
 
-obs/lobo.py module      - module containing functions for working with MBARI LOBO mooring data
+obs/lobo.py module      - load MBARI LOBO mooring data

@@ -53,34 +53,9 @@ def _todict(matobj):
         elem = matobj.__dict__[strg]
         if isinstance(elem, spio.matlab.mio5_params.mat_struct):
             dict[strg] = _todict(elem)
-        elif isinstance(elem,np.ndarray):
-            dict[strg] = _tolist(elem)
         else:
             dict[strg] = elem
     return dict
-
-def _tolist(ndarray):
-    '''
-    A recursive function which constructs lists from cellarrays 
-    (which are loaded as numpy ndarrays), recursing into the elements
-    if they contain matobjects.
-    
-    Source: Stack Overflow 
-    http://stackoverflow.com/questions/7008608/scipy-io-loadmat-nested-structures-i-e-dictionaries
-    Author: jpapon
-    http://stackoverflow.com/users/4685980/jpapon
-    License: Creative Commons Attribution-ShareAlike 3.0
-    http://creativecommons.org/licenses/by-sa/3.0/
-    '''
-    elem_list = []            
-    for sub_elem in ndarray:
-        if isinstance(sub_elem, spio.matlab.mio5_params.mat_struct):
-            elem_list.append(_todict(sub_elem))
-        elif isinstance(sub_elem,np.ndarray):
-            elem_list.append(_tolist(sub_elem))
-        else:
-            elem_list.append(sub_elem)
-    return elem_list
 
 def print_mat_nested(d, indent=0, nkeys=0):
     """
@@ -96,8 +71,8 @@ def print_mat_nested(d, indent=0, nkeys=0):
     Author: sth
     http://stackoverflow.com/users/56338/sth
     
-    Modified by T. Connolly for Python 3 compatibility as suggested by Drunken Master in 
-    response to sth's Stack Overflow post above
+    Modified by T. Connolly for Python 3 compatibility, as suggested by "Drunken Master" 
+    (http://stackoverflow.com/users/4592067/drunken-master) in response to sth's SO post above
     
     License: Creative Commons Attribution-ShareAlike 3.0
     http://creativecommons.org/licenses/by-sa/3.0/
