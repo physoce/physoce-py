@@ -10,10 +10,10 @@ python setup.py install
 IMPORTING
 
 Python code to import the main package:
-import physoce
+```import physoce```
 
 Python code to import sub-packages:
-import physoce.obs
+```import physoce.obs```
 
 CONTENTS
 
