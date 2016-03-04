@@ -1,19 +1,26 @@
-physoce 
--------
+# physoce 
 Python tools for physical oceanography at Moss Landing Marine Labs
 
-INSTALLATION
+## Installation
 
-To install the package, run the following in the terminal/command prompt:
-python setup.py install
+To install the package for the first time, first run the following in the 
+terminal/command prompt:
+```
+git init .
+git remote add origin https://gitlab.com/physoce/physoce-py.git
+```
 
-IMPORTING
+## Importing modules
 
 Python code to import the main package:
-```import physoce```
+```python
+import physoce
+```
 
 Python code to import sub-packages:
-```import physoce.obs```
+```python
+import physoce.obs
+```
 
 CONTENTS
 
