@@ -10,15 +10,15 @@ def load_wq(data_dir,siteid,flaglist=[]):
     All other data are in lists of strings.    
     
     INPUTS:
-        data_dir: a string specifying the path to the directory where NERR 
-        data files are located
+    data_dir: a string specifying the path to the directory where NERR 
+    data files are located
     
-        siteid: A string identifying the site. See the ID column in 
-        sampling_stations.csv
+    siteid: A string identifying the site. See the ID column in 
+    sampling_stations.csv
     
-        flaglist: specifies which flags should be used to identify bad data 
-        to be returned as NaN. See NERR data readme.rtf for more information 
-        on flags   
+    flaglist: specifies which flags should be used to identify bad data 
+    to be returned as NaN. See NERR data readme.rtf for more information 
+    on flags   
         
     OUTPUT: A dictionary containing the data. Variable names and units are 
     kept the same as in the original files. 
@@ -109,16 +109,16 @@ def load_nut(data_dir,siteid,flaglist=[]):
     Numerical data are in NumPy arrays with missing data as NaN values.
     All other data are in lists of strings.    
     
-        INPUTS:
-        data_dir: a string specifying the path to the directory where NERR 
-        data files are located
+    INPUTS:
+    data_dir: a string specifying the path to the directory where NERR 
+    data files are located
     
-        siteid: A string identifying the site. See the ID column in 
-        sampling_stations.csv
+    siteid: A string identifying the site. See the ID column in 
+    sampling_stations.csv
     
-        flaglist: specifies which flags should be used to identify bad data 
-        to be returned as NaN. See NERR data readme.rtf for more information 
-        on flags   
+    flaglist: specifies which flags should be used to identify bad data 
+    to be returned as NaN. See NERR data readme.rtf for more information 
+    on flags   
         
     OUTPUT: A dictionary containing the data. Variable names and units are 
     kept the same as in the original files. 
@@ -127,6 +127,7 @@ def load_nut(data_dir,siteid,flaglist=[]):
     dtime - Python datetime object
     PO4F_uM,NH4F_uM,NO2F_uM,NO3F_uM,NO23F_uM - nutrient concentrations in uM (micromolar)
     
+    EXAMPLE:    
     data_dir = '/Users/tomconnolly/work/Data/NERR/Elkhorn_Slough/'
     siteid = 'elksm' # ID for Elkhorn Slough South Marsh
     data = nerr.load_nut(data_dir,siteid,flaglist=['<-5>','<-3>','<-2>','<1>'])
