@@ -3,81 +3,35 @@ import glob
 from datetime import datetime
 import numpy as np
 
-# TO DO: 
-# Finish load_met function
-# Inlude a lookup table for site position (lat/lon)
-# Convert wind speed and direction to velocity vector
-# Anemometer height
-
-def string_convert(string):
-    """
-    Convert strings to numbers, convert to nan if not a number
-    """
-    try:
-        num = float(string)
-    except:
-        num = np.nan
-    return num
-
-def load_met(data_dir,siteid,flaglist=[],frequency=15):
-    """
-    Read NERR meteorological data files from multiple years into one dictionary.
-    Numerical data are in NumPy arrays with missing data as NaN values.
-    All other data are in lists of strings.    
-    Variable names and units are kept the same as in the original files. See NERR
-    documentation for more information.
-    
-    Additional variables added:    
-    datetime - Python datetime object
-    
-    flaglist specifies which flags should be used to identify bad data to be returned as NaN
-    example: load_met(data_dir,siteid,flaglist=['<-5>','<-4>','<-3>','<-2>','<1>'])
-    See NERR data readme.rtf for more information
-    
-    Frequency 
-    """
-    
-    # WORK IN PROGRESS #    
-    
-    file_list = glob.glob(data_dir + siteid + 'met*.csv')
-    cnt = 0 # initialize variable that counts total number of lines
-    d = dict() # create new dictionary (to be returned)
-    
-    # make sure flaglist is a list 
-    # (if it is a string, all data may be interpreted as bad)
-    if isinstance(flaglist, list) != True:  
-        flaglist = [flaglist]
-    
-    # get list of variable names from header of first file
-    f = open(file_list[0],'r')
-    header = f.readline()
-    varnames = header.split(',')
-    for ii,var in enumerate(varnames[0:-1]):
-        varnames[ii] = var.strip('"') # strip quotes from each variable name 
-        d[varnames[ii]] = [] #initialize dictionary with key and empty list
-    # last column is junk
-    varnames = varnames[0:-1]
-    f.close()
-    
-    d['datetime'] = []    
-    
-    datecol = "DateTimeStamp"
-    
-
 def load_wq(data_dir,siteid,flaglist=[]):
     """
     Read NERR water quality data files from multiple years into one dictionary.
     Numerical data are in NumPy arrays with missing data as NaN values.
     All other data are in lists of strings.    
-    Variable names and units are kept the same as in the original files. See NERR
-    documentation for more information.
     
-    Additional variables added:    
-    datetime - Python datetime object
+    INPUTS:
+        data_dir: a string specifying the path to the directory where NERR 
+        data files are located
     
-    flaglist specifies which flags should be used to identify bad data to be returned as NaN
-    example: load_wq(data_dir,siteid,flaglist=['<-5>','<-4>','<-3>','<-2>','<1>'])
-    See NERR data readme.rtf for more information
+        siteid: A string identifying the site. See the ID column in 
+        sampling_stations.csv
+    
+        flaglist: specifies which flags should be used to identify bad data 
+        to be returned as NaN. See NERR data readme.rtf for more information 
+        on flags   
+        
+    OUTPUT: A dictionary containing the data. Variable names and units are 
+    kept the same as in the original files. 
+    
+    See NERR documentation for more information. 
+    Additional variables added by this function:    
+        dtime - Python datetime object    
+    
+    EXAMPLE: 
+    from physoce.obs import nerr
+    data_dir = '/Users/tomconnolly/work/Data/NERR/Elkhorn_Slough/'
+    siteid = 'elksm' # ID for Elkhorn Slough South Marsh
+    data = nerr.load_wq(data_dir,siteid,flaglist=['<-5>','<-4>','<-3>','<-2>','<1>'])
     """
     
     file_list = glob.glob(data_dir + siteid + 'wq*.csv')
@@ -100,7 +54,7 @@ def load_wq(data_dir,siteid,flaglist=[]):
     varnames = varnames[0:-1]
     f.close()
     
-    d['datetime'] = []    
+    d['dtime'] = []    
     
     datecol = "DateTimeStamp"
     # specifiy columns with numeric data that should be converted to numpy arrays
@@ -121,7 +75,7 @@ def load_wq(data_dir,siteid,flaglist=[]):
             if len(cols) > 1:        
                 for ii,var in enumerate(varnames):
                     if var == datecol:
-                        d['datetime'].append(datetime.strptime(cols[ii], '%m/%d/%Y %H:%M'))
+                        d['dtime'].append(datetime.strptime(cols[ii], '%m/%d/%Y %H:%M'))
                     
                     if var in floatcols:
                         value = string_convert(cols[ii])
@@ -149,22 +103,33 @@ def load_wq(data_dir,siteid,flaglist=[]):
    
     return d
         
-
 def load_nut(data_dir,siteid,flaglist=[]):
     """
     Read NERR nutrient data files from multiple years into one dictionary.
     Numerical data are in NumPy arrays with missing data as NaN values.
     All other data are in lists of strings.    
-    Variable names and units are kept the same as in the original files. See NERR
-    documentation for more information.
     
-    Additional variables added:    
-    datetime - Python datetime object
+        INPUTS:
+        data_dir: a string specifying the path to the directory where NERR 
+        data files are located
+    
+        siteid: A string identifying the site. See the ID column in 
+        sampling_stations.csv
+    
+        flaglist: specifies which flags should be used to identify bad data 
+        to be returned as NaN. See NERR data readme.rtf for more information 
+        on flags   
+        
+    OUTPUT: A dictionary containing the data. Variable names and units are 
+    kept the same as in the original files. 
+    
+    Additional variables added by this function:    
+    dtime - Python datetime object
     PO4F_uM,NH4F_uM,NO2F_uM,NO3F_uM,NO23F_uM - nutrient concentrations in uM (micromolar)
     
-    flaglist specifies which flags should be used to identify bad data to be returned as NaN
-    example: load_nut(data_dir,siteid,flaglist=['<-5>','<-4>','<-3>','<-2>','<1>'])
-    See NERR data readme.rtf for more information
+    data_dir = '/Users/tomconnolly/work/Data/NERR/Elkhorn_Slough/'
+    siteid = 'elksm' # ID for Elkhorn Slough South Marsh
+    data = nerr.load_nut(data_dir,siteid,flaglist=['<-5>','<-3>','<-2>','<1>'])
     """
     
     file_list = glob.glob(data_dir + siteid + 'nut*.csv')
@@ -181,7 +146,7 @@ def load_nut(data_dir,siteid,flaglist=[]):
     d['StationCode'] = []
     d['isSWMP'] =  []
     d['DateTimeStamp'] = []
-    d['datetime'] = []
+    d['dtime'] = []
     d['Historical'] = []
     d["ProvisionalPlus"] = []
     d["CollMethd"] = []
@@ -218,7 +183,7 @@ def load_nut(data_dir,siteid,flaglist=[]):
                 d['StationCode'].append(cols[0].strip('"').strip())
                 d['isSWMP'].append(cols[1].strip('"'))
                 d['DateTimeStamp'].append(cols[2].strip('"'))
-                d['datetime'].append(datetime.strptime(cols[2].strip('"'), '%m/%d/%Y %H:%M'))
+                d['dtime'].append(datetime.strptime(cols[2].strip('"'), '%m/%d/%Y %H:%M'))
                 d['Historical'].append(cols[3])
                 d["ProvisionalPlus"].append(cols[4])
                 d["CollMethd"].append(cols[5])
@@ -273,3 +238,13 @@ def load_nut(data_dir,siteid,flaglist=[]):
     d["NO23F_uM"] = d["NO23F"]/0.01401
     
     return d
+    
+def string_convert(string):
+    """
+    Convert strings to numbers, convert to nan if not a number
+    """
+    try:
+        num = float(string)
+    except:
+        num = np.nan
+    return num
