@@ -27,21 +27,21 @@ python setup.py install
 
 After installing, the package can be accessed in Python. Here is code to import 
 the main package and see the available modules and sub-packages:
-```python
-import(phyoce)
-help(physoce)
+```
+import phyoce
+help physoce
 ```
 
 Python code to import a module from the main physoce package and see the 
 functions available in that module:
-```python
+```
 from physoce import graph
 help(graph)
 ```
 
 Python code to import module from the physoce.obs sub-package and see the 
 functions available in that module:
-```python
+```
 from physoce.obs import nerr
 help(nerr)
 ```
