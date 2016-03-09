@@ -67,7 +67,7 @@ def rsig(r,nu):
     """
 
     # t value
-    t = r*np.sqrt(nu)/np.sqrt(1-r**2)
+    t = abs(r)*np.sqrt(nu)/np.sqrt(1-r**2)
 
     # significance level, using the "survival function" (1-cdf)
     p = 2*(st.t.sf(t,nu))
