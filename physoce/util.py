@@ -4,7 +4,7 @@ General purpose functions.
 """
 from datetime import datetime
 
-def list2datetime(datestr_list,fmt='%a %b %d %H:%M:%S %Y'):
+def list2date(datestr_list,fmt='%a %b %d %H:%M:%S %Y'):
     '''Convert a list of date strings to datetime format.
     
     INPUT:
