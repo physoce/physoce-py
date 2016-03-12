@@ -11,7 +11,19 @@ import os
 
 def download_station_data(station_dir,station='seawater',overwrite=False):
     '''
-    Download data from either the seawater intake or weather station. 
+    Download all historical csv files for the MLML seawater intake or weather 
+    station. A latest version of the readme file is also downloaded. It is 
+    highly recommended to use different directories for seawater and weather,
+    since the readme files have the same name. By default, files are not 
+    overwritten unless it is the most recent file.
+    
+    INPUT:
+    station_dir - string specifying the local directory where you want to put 
+                  the data files
+    station     - either 'seawater' or 'weather' (default: 'seawater')
+    overwrite   - boolean specifying whether to overwrite the existing files 
+                  (default: 'False')
+    
     '''
     # remote directories
     base_url = 'http://pubdata.mlml.calstate.edu/mlml_last/'    
