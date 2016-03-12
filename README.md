@@ -54,8 +54,9 @@ help(nerr)
 * surfacewaves.py module  - surface gravity wave calculations
 * tseries.py module  		- time series 
 * obs/ sub-package        - modules for specific types of oceanographic data
-* obs/lobo.py module      - load MBARI LOBO mooring data
-* obs/nerr.py module      - load National Estuarine Research Reserve data
+* obs/lobo.py module      - MBARI LOBO mooring data
+* obs/nerr.py module      - National Estuarine Research Reserve data
+* obs/mlml.py module	  - Moss Landing Marine Labs public data
 
 ## Adding new code to the package
 
