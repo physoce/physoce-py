@@ -31,11 +31,16 @@ def download_station_data(data_root_dir,station='seawater',overwrite=False):
     fr.close()
     urlr.close()
     
-    # loop through each remote csv file and download if necessary
+    # loop through each remote csv file and download if:
+    # the file does not exist, the overwrite option is True or it is the last
+    # file in the list (there may be new data in that file)
     for csv_name in csv_list:
         remote_file = station_url + csv_name
         local_file = station_dir + csv_name
-        if (os.path.exists(local_file) == False) or (overwrite == True):
+        write_conditions = [os.path.exists(local_file) == False,
+                            overwrite == True,
+                            csv_name == csv_list[-1]]
+        if any(write_conditions):
             urlfile = urlopen(remote_file)
             f = open(local_file,'w')
             f.write(urlfile.read())
