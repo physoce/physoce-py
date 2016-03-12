@@ -1,16 +1,24 @@
 # -*- coding: utf-8 -*-
 
+'''
+Tools for working with data from MLML public data portal:
+http://pubdata.mlml.calstate.edu
+'''
+
 from urllib2 import urlopen
 import re
 import os
 
-def download_station_data(data_root_dir,station='seawater',overwrite=False):
+def download_station_data(station_dir,station='seawater',overwrite=False):
+    '''
+    Download data from either the seawater intake or weather station. 
+    '''
     # remote directories
     base_url = 'http://pubdata.mlml.calstate.edu/mlml_last/'    
     station_url = base_url + '/' + station + '/'
-    
+
     # local directory
-    station_dir = data_root_dir + '/' + station + '/'
+    station_dir = station_dir + '/'    
     
     # check whether a directory exists for this station
     if os.path.isdir(station_dir) == False:
