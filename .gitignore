@@ -1,0 +1,4 @@
+*.pyc
+physoce.egg-info
+build/
+dist/
