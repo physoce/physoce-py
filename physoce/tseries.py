@@ -3,49 +3,84 @@ from scipy import stats, signal
 
 def hanning(x,N):
     """ 
-    Filter a time series x with a Hanning window of length N
-    Inputs:
-    x - a numpy array to be filtered
-    N - width of window
-    Output: numpy array of filtered time series
+Filter a time series x with a Hanning window of length N
+    
+Inputs:
+x - a numpy array to be filtered
+N - width of window
+    
+Output: numpy array of filtered time series
     """
     
-    win = signal.hann(N)
-    xf = signal.convolve(x,win/sum(win),mode='same')
-    xf = _pad_series(xf,N)
+    wts = signal.hann(N) # filter weights
+    xf = _filt(x,wts)
     return xf
     
-def _pad_series(x,N):
+def lancz(x,cutoff=40,dt=1):
+    """ 
+Filter a time series x with cosine-Lanczos filter
+
+The default cutoff (half power period) of 40 hours corresponds to a frequency of 0.6 cpd. A cutoff of 34.29h corresponds to 0.7 cpd. The 40 hour cutoff is more effective at reducing diurnal-band variability but shifts periods of variability in low passed time series to >2 days.
+    
+Inputs:
+x - a numpy array to be filtered
+cutoff - half-power period (hours), default = 40
+dt - sample interval (hours), default = 1
+    
+Output: numpy array of filtered time series, same size as input with ends NaN values at start and end.
+
+Reference: Emery and Thomson, 2004, Data Analysis Methods in Physical Oceanography. 2nd Ed., pp. 539-540. Section 5.10.7.4 - The Hanning window.
     """
-    Private function to pad the ends of a filtered time series with NaN values. 
-    N/2 values are padded at each end of the time series.
-    Inputs: 
-    x - the time series to be padded    
-    N - the length of the filter
+
+    cph = 1./dt   # samples per hour
+    nwts = int(120*cph) # number of weights
+    
+    # create the filter weights
+    wts = signal.firwin(nwts, 
+                        1./cutoff, 
+                        window='hanning', 
+                        nyq=cph/2.)  
+                        
+    xf = _filt(x,wts)
+    return xf
+    
+def _filt(x,wts):
     """
-    npad = np.ceil(0.5*N)
-    x[:npad] = np.nan
-    x[-npad:] = np.nan
-    return x
+Private function to filter a time series and pad the ends of the filtered time series with NaN values. For N weights, N/2 values are padded at each end of the time series. The filter weights are normalized so that the sum of weights = 1.
+   
+Inputs: 
+
+x - the time series    
+wts - the filter weights
+
+Output: the filtered time series
+
+    """
+    
+    wtsn = wts/sum(wts) # normalize weights so sum = 1
+    xf = signal.convolve(x,wtsn,mode='same')
+
+    # pad ends of time series
+    nwts = len(wts) # number of filter weights
+    npad = np.ceil(0.5*nwts) 
+    xf[:npad] = np.nan
+    xf[-npad:] = np.nan
+    return xf
 
 def fillgapwithnan(x,date):
     """
-    (newx,newdate) = fillgapwithnan(x,date)
-    ---------------------------------------
-    Fill in missing data with NaN values. This is intended for a regular time 
-    series that has gaps where no data are reported. 
+Fill in missing data with NaN values. This is intended for a regular time series that has gaps where no data are reported. 
     
-    Although this function is intended for regularly-sampled time series (with gaps), 
-    it does allow for some slight irregularity (e.g. 13:00,14:00,15:00,15:59,16:59...)
+Although this function is intended for regularly-sampled time series (with gaps), it does allow for some slight irregularity (e.g. 13:00,14:00,15:00,15:59,16:59...)
     
-    Inputs:
-    x - a numpy array of data (1 or 2 dimensions)
-    date - datetime values that correspond to x
+Inputs:
+x - a numpy array of data (1 or 2 dimensions)
+date - datetime values that correspond to x
 
-    Returns:
-    (newx,newdate)
-    newx - new array of data
-    newdate = new datetime values
+Returns:
+(newx,newdate)
+newx - new array of data
+newdate = new datetime values
     """
           
     xnd = np.ndim(x) # remember original number of dims in x  
@@ -61,7 +96,8 @@ def fillgapwithnan(x,date):
     
     # find most common timedelta
     alldeltat = np.diff(date)
-    deltat = stats.mode(alldeltat)[0][0] # stats.mode returns (value, number of occurences) in arrays
+    # stats.mode returns (value, number of occurences) in arrays
+    deltat = stats.mode(alldeltat)[0][0] 
     
     gapi = np.where(alldeltat > deltat*3/2)[0]    
     
@@ -71,7 +107,8 @@ def fillgapwithnan(x,date):
     cnt = 0 # counter for looping through the gaps
     for ii in gapi:
         tdiff = date[ii+1]-date[ii] # size of gap
-        nstep = int(round((tdiff.total_seconds()/deltat.total_seconds())))-1 # number of new values needed to fill gap
+        # number of new values needed to fill gap
+        nstep = int(round((tdiff.total_seconds()/deltat.total_seconds())))-1 
         for step in np.arange(nstep):
             t = newdate[-1]+deltat
             newdate.append(t)
