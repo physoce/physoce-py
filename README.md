@@ -29,7 +29,7 @@ After installing, the package can be accessed in Python. Here is code to import
 the main package and see the available modules and sub-packages:
 ```
 import phyoce
-help physoce
+help(physoce)
 ```
 
 Python code to import a module from the main physoce package and see the 
