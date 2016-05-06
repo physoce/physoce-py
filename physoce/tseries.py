@@ -1,5 +1,32 @@
 import numpy as np
-from scipy import stats
+from scipy import stats, signal
+
+def hanning(x,N):
+    """ 
+    Filter a time series x with a Hanning window of length N
+    Inputs:
+    x - a numpy array to be filtered
+    N - width of window
+    Output: numpy array of filtered time series
+    """
+    
+    win = signal.hann(N)
+    xf = signal.convolve(x,win/sum(win),mode='same')
+    xf = _pad_series(xf,N)
+    return xf
+    
+def _pad_series(x,N):
+    """
+    Private function to pad the ends of a filtered time series with NaN values. 
+    N/2 values are padded at each end of the time series.
+    Inputs: 
+    x - the time series to be padded    
+    N - the length of the filter
+    """
+    npad = np.ceil(0.5*N)
+    x[:npad] = np.nan
+    x[-npad:] = np.nan
+    return x
 
 def fillgapwithnan(x,date):
     """
@@ -8,19 +35,17 @@ def fillgapwithnan(x,date):
     Fill in missing data with NaN values. This is intended for a regular time 
     series that has gaps where no data are reported. 
     
-    Although this function is inteneded for regularly-sampled time series (with gaps), 
+    Although this function is intended for regularly-sampled time series (with gaps), 
     it does allow for some slight irregularity (e.g. 13:00,14:00,15:00,15:59,16:59...)
     
     Inputs:
-    x - a numpy array of data
+    x - a numpy array of data (1 or 2 dimensions)
     date - datetime values that correspond to x
 
     Returns:
     (newx,newdate)
     newx - new array of data
     newdate = new datetime values
-    
-    Tom Connolly (tconnolly@mlml.calstate.edu)
     """
           
     xnd = np.ndim(x) # remember original number of dims in x  
