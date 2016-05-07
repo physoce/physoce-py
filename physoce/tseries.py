@@ -97,7 +97,7 @@ Output: the filtered time series
         x = np.expand_dims(x,axis=1)
     
     # normalize weights and convolve
-    wtsn = wts/sum(wts) # normalize weights so sum = 1
+    wtsn = float(wts)/sum(wts) # normalize weights so sum = 1
     xf = signal.convolve(x,wtsn[:,np.newaxis],mode='same')  
     
     # note: np.convolve may be faster 
