@@ -3,7 +3,7 @@ from scipy import stats, signal
 
 def hanning(x,N):
     """ 
-Filter a time series x with a Hanning window of length N.
+Filter a time series x with a Hanning window of length N. If x is 2D, the time series will be filtered along columns.
     
 Inputs:
 x - a numpy array to be filtered
@@ -18,12 +18,12 @@ Output: numpy array of filtered time series
     
 def lancz(x,dt=1,T=40):
     """ 
-Filter a time series x with cosine-Lanczos filter.
+Filter a time series x with cosine-Lanczos filter. If x is 2D, the time series will be filtered along columns.
 
 The default half amplitude period of 40 hours corresponds to a frequency of 0.6 cpd. A half amplitude period of 34.29h corresponds to 0.7 cpd. The 40 hour half amplitude period is more effective at reducing diurnal-band variability but shifts periods of variability in low passed time series to >2 days.
     
 Inputs:
-x - a numpy array to be filtered
+x - a numpy array to be filtered. 
 dt - sample interval (hours), default = 1
 T - half-amplitude period (hours), default = 40
     
@@ -46,10 +46,10 @@ Reference: Emery and Thomson, 2004, Data Analysis Methods in Physical Oceanograp
     
 def pl66(x,dt=1,T=33):
     """
-Filter a time series x with the PL66 filter.
+Filter a time series x with the PL66 filter. If x is 2D, the time series will be filtered along columns.
     
 Inputs:
-x - a numpy array to be filtered
+x - a numpy array to be filtered. 
 dt - sample interval (hours), default = 1
 T - half-amplitude period (hours), default = 33
     
@@ -81,22 +81,34 @@ Private function to filter a time series and pad the ends of the filtered time s
    
 Inputs: 
 
-x - the time series    
+x - the time series (may be 2d, will be filtered along columns)
 wts - the filter weights
 
 Output: the filtered time series
     """
-
-    ### TO DO: option to detrend data before filtering, then add trend back in after, remove nans and use np.linalg.lstsq ###    
     
+    """ TO DO: 
+        - option to detrend data before filtering, then add trend back in after, remove nans and use np.linalg.lstsq  
+        - allow for more than 2 dims (np.reshape to 2d) """
+        
+    # convert to 2D array if necessary (general case)
+    ndims = np.ndim(x)
+    if ndims == 1:
+        x = np.expand_dims(x,axis=1)
+    
+    # normalize weights and convolve
     wtsn = wts/sum(wts) # normalize weights so sum = 1
-    xf = signal.convolve(x,wtsn,mode='same')  
+    xf = signal.convolve(x,wtsn[:,np.newaxis],mode='same')  
     
     # pad ends of time series
     nwts = len(wts) # number of filter weights
     npad = np.ceil(0.5*nwts) 
-    xf[:npad] = np.nan
-    xf[-npad:] = np.nan
+    xf[:npad,:] = np.nan
+    xf[-npad:,:] = np.nan
+    
+    # return array with same number of dimensions as input
+    if ndims == 1:
+        xf = xf.flatten()    
     return xf
 
 def fillgapwithnan(x,date):
