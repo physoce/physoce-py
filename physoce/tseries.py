@@ -100,6 +100,9 @@ Output: the filtered time series
     wtsn = wts/sum(wts) # normalize weights so sum = 1
     xf = signal.convolve(x,wtsn[:,np.newaxis],mode='same')  
     
+    # note: np.convolve may be faster 
+    # http://scipy.github.io/old-wiki/pages/Cookbook/ApplyFIRFilter
+    
     # pad ends of time series
     nwts = len(wts) # number of filter weights
     npad = np.ceil(0.5*nwts) 
