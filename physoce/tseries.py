@@ -87,10 +87,6 @@ wts - the filter weights
 Output: the filtered time series
     """
     
-    """ TO DO: 
-        - option to detrend data before filtering, then add trend back in after, remove nans and use np.linalg.lstsq  
-        - allow for more than 2 dims (np.reshape to 2d) """
-        
     # convert to 2D array if necessary (general case)
     ndims = np.ndim(x)
     if ndims == 1:
