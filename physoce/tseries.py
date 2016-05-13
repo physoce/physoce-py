@@ -1,26 +1,129 @@
 import numpy as np
-from scipy import stats
+from scipy import stats, signal
+
+def hanning(x,N):
+    """ 
+Filter a time series x with a Hanning window of length N. If x is 2D, the time series will be filtered along columns.
+    
+Inputs:
+x - a numpy array to be filtered
+N - width of window
+    
+Output: numpy array of filtered time series
+    """
+    
+    wts = signal.hann(N) # filter weights
+    xf = _filt(x,wts)
+    return xf
+    
+def lancz(x,dt=1,T=40):
+    """ 
+Filter a time series x with cosine-Lanczos filter. If x is 2D, the time series will be filtered along columns.
+
+The default half amplitude period of 40 hours corresponds to a frequency of 0.6 cpd. A half amplitude period of 34.29h corresponds to 0.7 cpd. The 40 hour half amplitude period is more effective at reducing diurnal-band variability but shifts periods of variability in low passed time series to >2 days.
+    
+Inputs:
+x - a numpy array to be filtered. 
+dt - sample interval (hours), default = 1
+T - half-amplitude period (hours), default = 40
+    
+Output: numpy array of filtered time series, same size as input with ends NaN values at start and end.
+
+Reference: Emery and Thomson, 2004, Data Analysis Methods in Physical Oceanography. 2nd Ed., pp. 539-540. Section 5.10.7.4 - The Hanning window.
+    """
+
+    cph = 1./dt   # samples per hour
+    nwts = int(round(120*cph)) # number of weights
+    
+    # create filter weights
+    wts = signal.firwin(nwts, 
+                        1./T, 
+                        window='hanning', 
+                        nyq=cph/2.)  
+                        
+    xf = _filt(x,wts)
+    return xf
+    
+def pl66(x,dt=1,T=33):
+    """
+Filter a time series x with the PL66 filter. If x is 2D, the time series will be filtered along columns.
+    
+Inputs:
+x - a numpy array to be filtered. 
+dt - sample interval (hours), default = 1
+T - half-amplitude period (hours), default = 33
+    
+Output: numpy array of filtered time series, same size as input with ends NaN values at start and end.    
+    
+Reference: Rosenfeld (1983), WHOI Technical Report 85-35
+Matlab code: http://woodshole.er.usgs.gov/operations/sea-mat/bobstuff-html/pl66tn.html
+    """
+    
+    Tn=float(T)/dt # normalized cutoff period
+    fqn=1./Tn # normalized cutoff frequency
+    nw = int(round(2.*T/dt)) # number of weights on one side
+    
+    # create filter weights
+    j = np.arange(1,nw)
+    tn = np.pi*j
+    den=fqn*fqn*tn**3
+    wts = (2*np.sin(2*fqn*tn)-np.sin(fqn*tn)-np.sin(3*fqn*tn))/den 
+    
+    # make symmetric
+    wts = np.hstack((wts[::-1],2*fqn,wts))
+    
+    xf = _filt(x,wts)
+    return xf
+    
+def _filt(x,wts):
+    """
+Private function to filter a time series and pad the ends of the filtered time series with NaN values. For N weights, N/2 values are padded at each end of the time series. The filter weights are normalized so that the sum of weights = 1.
+   
+Inputs: 
+
+x - the time series (may be 2d, will be filtered along columns)
+wts - the filter weights
+
+Output: the filtered time series
+    """
+    
+    # convert to 2D array if necessary (general case)
+    ndims = np.ndim(x)
+    if ndims == 1:
+        x = np.expand_dims(x,axis=1)
+    
+    # normalize weights and convolve
+    wtsn = float(wts)/sum(wts) # normalize weights so sum = 1
+    xf = signal.convolve(x,wtsn[:,np.newaxis],mode='same')  
+    
+    # note: np.convolve may be faster 
+    # http://scipy.github.io/old-wiki/pages/Cookbook/ApplyFIRFilter
+    
+    # pad ends of time series
+    nwts = len(wts) # number of filter weights
+    npad = np.ceil(0.5*nwts) 
+    xf[:npad,:] = np.nan
+    xf[-npad:,:] = np.nan
+    
+    # return array with same number of dimensions as input
+    if ndims == 1:
+        xf = xf.flatten()    
+    return xf
 
 def fillgapwithnan(x,date):
     """
-    (newx,newdate) = fillgapwithnan(x,date)
-    ---------------------------------------
-    Fill in missing data with NaN values. This is intended for a regular time 
-    series that has gaps where no data are reported. 
+Fill in missing data with NaN values. This is intended for a regular time series that has gaps where no data are reported. 
     
-    Although this function is inteneded for regularly-sampled time series (with gaps), 
-    it does allow for some slight irregularity (e.g. 13:00,14:00,15:00,15:59,16:59...)
+Although this function is intended for regularly-sampled time series (with gaps), it does allow for some slight irregularity (e.g. 13:00,14:00,15:00,15:59,16:59...)
     
-    Inputs:
-    x - a numpy array of data
-    date - datetime values that correspond to x
+Inputs:
+x - a numpy array of data (1 or 2 dimensions)
+date - datetime values that correspond to x
 
-    Returns:
-    (newx,newdate)
-    newx - new array of data
-    newdate = new datetime values
-    
-    Tom Connolly (tconnolly@mlml.calstate.edu)
+Returns:
+(newx,newdate)
+newx - new array of data
+newdate = new datetime values
     """
           
     xnd = np.ndim(x) # remember original number of dims in x  
@@ -36,7 +139,8 @@ def fillgapwithnan(x,date):
     
     # find most common timedelta
     alldeltat = np.diff(date)
-    deltat = stats.mode(alldeltat)[0][0] # stats.mode returns (value, number of occurences) in arrays
+    # stats.mode returns (value, number of occurences) in arrays
+    deltat = stats.mode(alldeltat)[0][0] 
     
     gapi = np.where(alldeltat > deltat*3/2)[0]    
     
@@ -46,7 +150,8 @@ def fillgapwithnan(x,date):
     cnt = 0 # counter for looping through the gaps
     for ii in gapi:
         tdiff = date[ii+1]-date[ii] # size of gap
-        nstep = int(round((tdiff.total_seconds()/deltat.total_seconds())))-1 # number of new values needed to fill gap
+        # number of new values needed to fill gap
+        nstep = int(round((tdiff.total_seconds()/deltat.total_seconds())))-1 
         for step in np.arange(nstep):
             t = newdate[-1]+deltat
             newdate.append(t)
