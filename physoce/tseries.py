@@ -161,6 +161,35 @@ Matlab function: http://woodshole.er.usgs.gov/operations/sea-mat/RPSstuff-html/p
     minor = np.sqrt(0.5*(term1 - term2))
     
     return theta,major,minor
+    
+def rot(u,v,theta):
+    """
+Rotate a vector counter-clockwise OR rotate the coordinate system clockwise. 
+
+Usage:
+ur,vr = rot(u,v,theta)
+
+Input: 
+u,v - vector components (e.g. u = eastward velocity, v = northward velocity)
+theta - rotation angle (degrees)
+
+Output:
+ur,vr - rotated vector components
+
+Example: 
+rot(1,0,90) returns (0,1)
+    """
+
+    # Make sure inputs are numpy arrays
+    u = np.array(u)
+    v = np.array(v)    
+    
+    w = u + 1j*v            # complex vector
+    ang = theta*np.pi/180   # convert angle to radians
+    wr = w*np.exp(1j*ang)  # complex vector rotation
+    ur = np.real(wr)        # return u and v components
+    vr = np.imag(wr)
+    return ur,vr
 
 def fillgapwithnan(x,date):
     """
@@ -244,3 +273,14 @@ if __name__ == '__main__':
         print('princax test: passed')
     else:
         raise ValueError('princax test: failed')
+        
+    # Test rot function
+    x = [1,0,-1]
+    y = [0,1,0]
+    xr,yr = rot(x,y,90)
+    test1 = np.isclose(xr,[0,-1,0])
+    test2 = np.isclose(yr,[1,0,-1])
+    if test1.all() & test2.all():
+        print('rot test: passed')
+    else:
+        raise ValueError('rot test: failed')
