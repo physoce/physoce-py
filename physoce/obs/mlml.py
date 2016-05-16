@@ -9,20 +9,16 @@ from urllib2 import urlopen
 import re
 import os
 
-def download_station_data(station_dir,station='seawater',overwrite=False):
+def download_station_data(station_dir,station='seawater',overwrite=True):
     '''
-    Download all historical csv files for the MLML seawater intake or weather 
-    station. A latest version of the readme file is also downloaded. It is 
-    highly recommended to use different directories for seawater and weather,
-    since the readme files have the same name. By default, files are not 
-    overwritten unless it is the most recent file.
-    
-    INPUT:
-    station_dir - string specifying the local directory where you want to put 
-                  the data files
-    station     - either 'seawater' or 'weather' (default: 'seawater')
-    overwrite   - boolean specifying whether to overwrite the existing files 
-                  (default: 'False')
+Download all historical csv files for the MLML seawater intake or weather station. A latest version of the readme file is also downloaded. It is highly recommended to use different directories for seawater and weather, since the readme files have the same name. By default, new files are downloaded and existing files are overwritten.
+
+INPUT:
+station_dir - string specifying the local directory where you want to put 
+              the data files
+station     - either 'seawater' or 'weather' (default: 'seawater')
+overwrite   - boolean specifying whether to overwrite the existing files 
+              (default: 'False')
     
     '''
     # remote directories
@@ -40,9 +36,9 @@ def download_station_data(station_dir,station='seawater',overwrite=False):
     # the csv filenames are in format yyyy-mm.csv
     urlpath =urlopen(station_url)
     html_string = urlpath.read().decode()
-    pattern = re.compile('[0-9][0-9][0-9][0-9]-[0-9][0-9].csv')
-    csv_list = pattern.findall(html_string)
-    urlpath.close()
+    urlpath.close()    
+    file_pattern = '[0-9][0-9][0-9][0-9]-[0-9][0-9].csv'
+    csv_list = re.findall(file_pattern,html_string)
     
     # get updated readme file
     urlr = urlopen(station_url + '1_README.TXT')

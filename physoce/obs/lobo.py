@@ -6,9 +6,7 @@ from physoce import tseries
 try:
     import pandas as pd
 except ImportError:
-    pdimp = False
-else:
-    pdimp = True
+    pass
 
 def read_txt_data(data_file,format='dict',fillgap=False):     
     """
@@ -92,9 +90,12 @@ def read_txt_data(data_file,format='dict',fillgap=False):
         missing = np.isclose(LoboDict['waterdepth'],-9.999)
         LoboDict['waterdepth'][missing] = np.nan
     
-    if pdimp == False and format == 'dataframe':
-        format = 'dict'
-        print "Warning: error importing pandas, loading LOBO data in dictionary format instead"
+    if format == 'dataframe':
+        try:
+            reload(pd)
+        except NameError:
+            format = 'dict'
+            print "Warning: error importing pandas, loading LOBO data in dictionary format instead"
     
     if format=='dataframe':
         LoboDF = pd.DataFrame(LoboDict,index=date)
