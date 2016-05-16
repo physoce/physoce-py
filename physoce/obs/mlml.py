@@ -8,21 +8,25 @@ http://pubdata.mlml.calstate.edu
 from urllib2 import urlopen
 import re
 import os
+import numpy as np
+from glob import glob
+from physoce import util
+try:
+    import pandas as pd
+    import xarray as xr
+except ImportError:
+    pass
 
-def download_station_data(station_dir,station='seawater',overwrite=False):
+def download_station_data(station_dir,station='seawater',overwrite=True):
     '''
-    Download all historical csv files for the MLML seawater intake or weather 
-    station. A latest version of the readme file is also downloaded. It is 
-    highly recommended to use different directories for seawater and weather,
-    since the readme files have the same name. By default, files are not 
-    overwritten unless it is the most recent file.
-    
-    INPUT:
-    station_dir - string specifying the local directory where you want to put 
-                  the data files
-    station     - either 'seawater' or 'weather' (default: 'seawater')
-    overwrite   - boolean specifying whether to overwrite the existing files 
-                  (default: 'False')
+Download all historical csv files for the MLML seawater intake or weather station. A latest version of the readme file is also downloaded. It is highly recommended to use different directories for seawater and weather, since the readme files have the same name. By default, new files are downloaded and existing files are overwritten.
+
+INPUT:
+station_dir - string specifying the local directory where you want to put 
+              the data files
+station     - either 'seawater' or 'weather' (default: 'seawater')
+overwrite   - boolean specifying whether to overwrite the existing files 
+              (default: 'False')
     
     '''
     # remote directories
@@ -40,9 +44,9 @@ def download_station_data(station_dir,station='seawater',overwrite=False):
     # the csv filenames are in format yyyy-mm.csv
     urlpath =urlopen(station_url)
     html_string = urlpath.read().decode()
-    pattern = re.compile('[0-9][0-9][0-9][0-9]-[0-9][0-9].csv')
-    csv_list = pattern.findall(html_string)
-    urlpath.close()
+    urlpath.close()    
+    file_pattern = '[0-9][0-9][0-9][0-9]-[0-9][0-9].csv'
+    csv_list = re.findall(file_pattern,html_string)
     
     # get updated readme file
     urlr = urlopen(station_url + '1_README.TXT')
@@ -66,3 +70,100 @@ def download_station_data(station_dir,station='seawater',overwrite=False):
             f.write(urlfile.read())
             f.close()
             urlfile.close()
+            
+def read_csv_data(data_dir,format='dict'):
+    '''
+Read historical text data (.csv files) from the MLML seawater intake or weather station. The data must be stored locally, and can be downloaded automatically with the download_station_data() function.
+
+Inputs:
+data_dir - Specifies the directory where the data files are located. All files with the format yyyy-mm.csv in this directory will be read.
+
+Options:
+    format: output format
+        format = 'dict' (default): dictionary
+        format = 'dataframe': pandas DataFrame
+        format = 'dataset': xarray DataSet
+
+Output: dictionary, pandas DataFrame or xarray DataSet with keys/variable names taken from column headers
+    '''
+    
+    file_list = glob(data_dir+'*.csv')
+    
+    # get list of variable names from header of first file
+    f = open(file_list[0],'r')
+    header = f.readline()
+    f.close()
+    header = header.strip('\r\n')
+    varnames = header.split(',')
+    
+    #initialize dictionary with key and empty list for each variable
+    d = dict()
+    for ii,var in enumerate(varnames[0:]):
+        d[varnames[ii]] = []
+    
+    # specify which columns contain numeric data
+    floatcols = range(2,len(varnames))
+    allcols = range(0,len(varnames))
+    strcols = list(set(allcols)-set(floatcols))
+    
+    for file_name in file_list:
+        print('reading ' + file_name)        
+        
+        # get numeric data, with missing values as NaN
+        datamasked = np.genfromtxt(file_name,
+                             skip_header=1,
+                             delimiter=',',
+                             missing_values='-99999',
+                             usemask=True)
+        data = datamasked.filled(np.nan)
+        
+        # get string data
+        datastr = np.genfromtxt(file_name,
+                         skip_header=1,
+                         delimiter=',',
+                         usecols=tuple(strcols),
+                         dtype='S')
+        
+        # append data variables    
+        if data.size != 0:    
+            for col in floatcols:
+                vname = varnames[col]
+                d[vname] = np.append(d[vname],data[:,col])
+            for si,col in enumerate(strcols):
+                vname = varnames[col]
+                d[vname] = np.append(d[vname],datastr[:,si])
+    
+    # create date variables
+    # put in a numpy array for easy indexing
+    # new variable for datetime
+    dtime = np.array(util.list2date(d['utc_time'],'%Y-%m-%dT%H:%M:%SZ'))    
+
+    # Try loading in pandas or xarray format if specified, default to dictionary format
+    if format == 'dataset':
+        try:
+            reload(xr)
+        except NameError:
+            format = 'dataframe'
+            print "Warning: xarray not installed, loading MLML data in pandas dataframe format instead"  
+    if format == 'dataframe':
+        try:
+            reload(pd)
+        except NameError:
+            format = 'dict'
+            print "Warning: pandas not installed, loading MLML data in dictionary format instead"
+    
+    if format is 'dataframe':
+        # turn dictionary into pandas dataframe
+        d = pd.DataFrame(d,index=dtime)
+        d.index.name = 'time'
+    elif format is 'dataset':
+        # turn dictionary in xarray dataset, using dataframe as intermediate format
+        d = pd.DataFrame(d,index=dtime)
+        d.index.name = 'time'        
+        d = xr.Dataset(d)
+    else:
+        # default format: dictionary containing numpy arrays
+        d['dtime'] = []    
+        d['dtime'] = dtime
+    
+    return d
