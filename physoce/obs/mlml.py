@@ -167,3 +167,79 @@ Output: dictionary, pandas DataFrame or xarray DataSet with keys/variable names 
         d['dtime'] = dtime
     
     return d
+    
+def add_metadata_xarray(ds,station,readme_file):
+    
+    if station is 'seawater':  
+        ds.coords['lon'] = -121.7915
+        ds.coords['lat'] = 36.8025
+    
+        ds['temp'].attrs['name'] = 'temperature'
+        ds['temp'].attrs['units'] = 'degrees Celcius'
+        ds['temp_flg'].attrs['name'] = 'temperature flag'       
+        ds['temp_flg'].attrs['sensor range test'] = '-5<temp<35'
+        ds['temp_flg'].attrs['user range test'] = '4<temp<22'
+        ds['temp_flg'].attrs['spike test'] = 'mean(temp_1.42hours)+/-2.4*stdev'
+        
+        ds['otemp'].attrs['name'] = 'optode temperature'
+        ds['otemp'].attrs['units'] = 'degrees Celcius'
+        ds['otemp_flg'].attrs['name'] = 'optode temperature flag'       
+        ds['otemp_flg'].attrs['sensor range test'] = '-5<otemp<35'
+        ds['otemp_flg'].attrs['user range test'] = '4<otemp<22'
+        ds['otemp_flg'].attrs['spike test'] = 'mean(otemp_1.42hours)+/-2.4*stdev'
+        
+        ds['cond'].attrs['name'] = 'conductivity'
+        ds['cond'].attrs['units'] = 'Siemens per meter'
+        ds['cond_flg'].attrs['name'] = 'conductivity flag'        
+        ds['cond_flg'].attrs['sensor range test'] = '0<cond<7'
+        ds['cond_flg'].attrs['user range test'] = '0.75<cond<1.1'
+        ds['cond_flg'].attrs['spike test'] = 'mean(cond_1.42hours)+/-2.4*stdev'            
+                
+        ds['sal'].attrs['name'] = 'practical salinity'
+        ds['sal'].attrs['units'] = ''
+        ds['sal'].attrs['scale'] = 'PSU-78'
+        ds['sal_flg'].attrs['name'] = 'salinity flag'   
+        ds['sal_flg'].attrs['sensor range test'] = '20<sal<50'
+        ds['sal_flg'].attrs['user range test'] = '32<sal<35'
+        ds['sal_flg'].attrs['spike test'] = 'mean(sal_1.42hours)+/-2.4*stdev'
+        
+        ds['fluor'].attrs['name'] = 'fluorescence'
+        ds['fluor'].attrs['units'] = 'micrograms per liter'    
+        ds['fluor_flg'].attrs['name'] = 'fluorescence flag' 
+        ds['fluor_flg'].attrs['sensor range test'] = '0.03<fluor<75'
+        ds['fluor_flg'].attrs['user range test'] = '0<fluor<20'
+        ds['fluor_flg'].attrs['spike test'] = 'mean(fluor_1.42hours)+/-2.4*stdev'            
+        
+        ds['ba'].attrs['name'] = 'beam attenuation'
+        ds['ba'].attrs['units'] = 'meters^-1'    
+        ds['ba_flg'].attrs['name'] = 'beam attenuation flag' 
+        ds['ba_flg'].attrs['sensor range test'] = '0<ba<100'
+        ds['ba_flg'].attrs['user range test'] = '0<ba<50'
+        ds['ba_flg'].attrs['spike test'] = 'mean(ba_1.42hours)+/-2.4*stdev'            
+
+        ds['trans'].attrs['name'] = 'transmission'
+        ds['trans'].attrs['units'] = 'percent (%)'    
+        ds['trans_flg'].attrs['name'] = 'transmission flag' 
+        ds['trans_flg'].attrs['sensor range test'] = '0<trans<100'
+        ds['trans_flg'].attrs['user range test'] = '0<trans<100'
+        ds['trans_flg'].attrs['spike test'] = 'mean(ba_1.42hours)+/-2.4*stdev'            
+        
+        ds['do2'].attrs['name'] = 'dissolved oxygen'
+        ds['do2'].attrs['units'] = 'micromoles per liter'    
+        ds['do2_flg'].attrs['name'] = 'dissolved oxygen flag' 
+        ds['do2_flg'].attrs['sensor range test'] = '0<do2<100'
+        ds['do2_flg'].attrs['user range test'] = 'do2<100'
+        ds['do2_flg'].attrs['spike test'] = 'mean(do2_1.42hours)+/-2.4*stdev'                    
+
+        ds['osat'].attrs['name'] = 'oxygen saturation'
+        ds['osat'].attrs['units'] = 'percent (%)'    
+        ds['osat_flg'].attrs['name'] = 'oxygen saturation flag' 
+        ds['osat_flg'].attrs['sensor range test'] = '0<osat<100'
+        ds['osat_flg'].attrs['user range test'] = '0<trans<100'
+        ds['osat_flg'].attrs['spike test'] = 'mean(ba_1.42hours)+/-2.4*stdev'            
+
+    with open(readme_file) as f:
+        contents = f.read()
+        for n, line in enumerate(contents):
+            n
+            
