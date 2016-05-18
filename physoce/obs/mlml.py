@@ -10,6 +10,7 @@ import re
 import os
 import numpy as np
 from glob import glob
+from datetime import datetime
 from physoce import util
 try:
     import pandas as pd
@@ -17,6 +18,34 @@ try:
 except ImportError:
     pass
 
+def make_netcdf(station_dir,netcdf_file,station,download=False,overwrite=False):
+    """
+Create a netcdf file containing MLML historical seawater or weather data. The file will be created from csv and readme files already on disk, or they can be downloaded.
+
+INPUT:
+station_dir - string specifying the location of csv files (e.g. '/home/username/data/')
+netcdf_file - string specifying the location and name of netcdf file to be created (e.g. '/home/username/data/mlml_seawater.nc')
+station     - either 'seawater' or 'weather' (default: 'seawater')
+download    - boolean specifying whether to download new files
+              (default: False)
+overwrite   - boolean specifying whether to overwrite the existing files, only used if downloading new data (default: False)
+    """
+    
+    # download new data, if specified    
+    if download == True:    
+        download_station_data(station_dir,station,overwrite)
+    
+    # read data in csv files to xarray dataset
+    d = read_csv_data(station_dir,format='dataset')
+    
+    # specify location of readme file and add metadata to dataset
+    readme_file = station_dir + '1_README.TXT'
+    _add_metadata_xarray(d,station,readme_file)
+    d.attrs['history'] = d.attrs['history'] + 'netcdf file created using physoce.obs.mlml.make_netcdf(station_dir'+station_dir+',netcdf_file='+netcdf_file+',station='+station+'download='+str(download)+',overwrite='+str(overwrite)+'): ' + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ', '
+    
+    # create netcdf file
+    d.to_netcdf(netcdf_file,mode='w')
+        
 def download_station_data(station_dir,station='seawater',overwrite=True):
     '''
 Download all historical csv files for the MLML seawater intake or weather station. A latest version of the readme file is also downloaded. It is highly recommended to use different directories for seawater and weather, since the readme files have the same name. By default, new files are downloaded and existing files are overwritten.
@@ -26,7 +55,7 @@ station_dir - string specifying the local directory where you want to put
               the data files
 station     - either 'seawater' or 'weather' (default: 'seawater')
 overwrite   - boolean specifying whether to overwrite the existing files 
-              (default: 'False')
+              (default: False)
     
     '''
     # remote directories
@@ -59,6 +88,7 @@ overwrite   - boolean specifying whether to overwrite the existing files
     # the file does not exist, the overwrite option is True or it is the last
     # file in the list (there may be new data in that file)
     for csv_name in csv_list:
+        print('downloading ' + station + ': ' + csv_name)
         remote_file = station_url + csv_name
         local_file = station_dir + csv_name
         write_conditions = [os.path.exists(local_file) == False,
@@ -161,9 +191,32 @@ Output: dictionary, pandas DataFrame or xarray DataSet with keys/variable names 
         d = pd.DataFrame(d,index=dtime)
         d.index.name = 'time'        
         d = xr.Dataset(d)
+        d.attrs['history'] = 'dataset created using physoce.obs.mlml.read_csv_data: ' + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ', ' 
     else:
         # default format: dictionary containing numpy arrays
         d['dtime'] = []    
         d['dtime'] = dtime
     
     return d
+    
+def _add_metadata_xarray(d,station,readme_file):
+    """
+Add metadata to xarray dataset. Currently this adds lat and lon coordinates and puts the contents of the readme in an attribute. For the weather data, the anemometer height is also added as a coordinate.
+    """    
+    
+    if station is 'seawater':
+        d.coords['lon'] = -121.7915
+        d.coords['lat'] = 36.8025
+    elif station is 'weather':
+        d.coords['lon'] = -121.78842
+        d.coords['lat'] = 36.80040
+        d.coords['z'] = 3.3
+        d.coords['z'].attrs['name'] = 'anemometer height'
+        d.coords['z'].attrs['units'] = 'meters'
+        
+    with open(readme_file) as f:
+        contents = f.read()
+        d.attrs['readme'] = contents
+        
+    d.attrs['history'] = d.attrs['history'] + 'attributes added to dataset using physoce.obs.mlml._add_metadata_xarray: ' + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ', ' 
+            
