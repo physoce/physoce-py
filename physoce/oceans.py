@@ -18,29 +18,30 @@ def wavedisp(wavper,h):
 				k	- wave number	
 				Cph	- phase speed
 				Cg	- group velocity 
+    """
 			
-	T Connolly 2014
+	""" T Connolly 2014
 	based on Matlab function wavedisp.m from S Lentz """
 	
-	wavper=np.array([wavper])
-	h=np.array([h])
+	wavper=np.array(wavper)
+	h=np.array(h)
 	
 	omega = 2*np.pi/wavper
-	g = 9.81
+	g = 9.8
 	c = omega**2*h/g
 	
 	x = np.sqrt(c)	
 	
 	d = 100*np.ones(np.shape(wavper))
 	tol = 5e-16
-	while any([d>tol]):
+	while any(d>tol):
 		f1=x*np.tanh(x)-c
 		f2=x*(1/np.cosh(x))**2+np.tanh(x)
 		x=x-f1/f2
 		d=np.abs((c-x*np.tanh(x))/c)
 	k=x/h
 	Cph=omega/k
-	Cg=(g*k*(1/np.cosh(x))**2+g*np.tanh(x))/(2*np.sqrt(g*k*np.tanh(x)))
+	Cg=(g*x*(1/np.cosh(x))**2+g*np.tanh(x))/(2*np.sqrt(g*k*np.tanh(x)))
 	
 	return (omega,k,Cph,Cg)
 
@@ -67,3 +68,20 @@ def ustokes(Hsig,wavper,wdepth,zst=()):
 	ust=A*np.cosh(2*wavnum*(zst+wdepth))
 		
 	return (ust,zst)
+ 
+if __name__ == '__main__':
+    omega,k,Cph,Cg = wavedisp([7,10],12)
+
+    mat_omega = np.array([0.8976,0.6283])
+    mat_k = np.array([0.0990,0.0630])
+    mat_Cph = np.array([9.0631,9.9667])
+    mat_Cg = np.array([6.5488,8.4740])
+    
+
+    test = np.isclose(np.array([omega,k,Cph,Cg]),
+                      np.array([mat_omega,mat_k,mat_Cph,mat_Cg]),
+                          atol = 1e-4)             
+    if test.all():
+        print('wavedisp test: passed')
+    else:
+        raise ValueError('wavedisp test: failed')
