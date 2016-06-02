@@ -101,4 +101,4 @@ if __name__ == '__main__':
     if test:
         print('ustokes test: passed')
     else:
-        raise ValueError('ustokes test: failed')        
+        raise ValueError('ustokes test: failed')      
