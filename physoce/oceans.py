@@ -37,7 +37,7 @@ Outputs:
 	
    	d = 100*np.ones(np.shape(wavper))
 	tol = 5.*np.finfo(float).eps
-	while any(d>tol):
+	while (d>tol).any():
 		f1=x*np.tanh(x)-c
 		f2=x*(1/np.cosh(x))**2+np.tanh(x)
 		x=x-f1/f2
@@ -78,6 +78,21 @@ Outputs:	ust	- Stokes drift [m/s]
 if __name__ == '__main__':
     
     ### Test wavedisp ###
+
+    # check just one value instead of list
+    mat_omega = 0.8976
+    mat_k = 0.0990
+    mat_Cph = 9.0631
+    mat_Cg = 6.5488
+    omega,k,Cph,Cg = wavedisp(7,12)
+    test = np.isclose(np.array([omega,k,Cph,Cg]),
+                      np.array([mat_omega,mat_k,mat_Cph,mat_Cg]),
+                          atol = 1e-4)             
+    if test.all():
+        print('wavedisp test #1: passed')
+    else:
+        raise ValueError('wavedisp test #1: failed')    
+    
     # values from original Matlab function
     mat_omega = np.array([0.8976,0.6283])
     mat_k = np.array([0.0990,0.0630])
@@ -88,9 +103,9 @@ if __name__ == '__main__':
                       np.array([mat_omega,mat_k,mat_Cph,mat_Cg]),
                           atol = 1e-4)             
     if test.all():
-        print('wavedisp test: passed')
+        print('wavedisp test #2: passed')
     else:
-        raise ValueError('wavedisp test: failed')
+        raise ValueError('wavedisp test #2: failed')
         
     ### Test ustokes ###
     # values from original Matlab function
