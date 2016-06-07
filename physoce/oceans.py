@@ -1,8 +1,3 @@
-""" 
-Functions for analysis of surface gravity waves
-Tom Connolly 2014 
-"""
-
 import numpy as np
 
 def wavedisp(wavper,h):
@@ -78,8 +73,7 @@ Outputs:	ust	- Stokes drift [m/s]
 if __name__ == '__main__':
     
     ### Test wavedisp ###
-
-    # check just one value instead of list
+    # check just one value
     mat_omega = 0.8976
     mat_k = 0.0990
     mat_Cph = 9.0631
@@ -93,6 +87,7 @@ if __name__ == '__main__':
     else:
         raise ValueError('wavedisp test #1: failed')    
     
+    # test multiple values
     # values from original Matlab function
     mat_omega = np.array([0.8976,0.6283])
     mat_k = np.array([0.0990,0.0630])
