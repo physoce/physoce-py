@@ -57,6 +57,7 @@ help(nerr)
 * obs/ sub-package        - modules for specific types of oceanographic data
 * obs/lobo.py module      - MBARI LOBO mooring data
 * obs/nerr.py module      - National Estuarine Research Reserve data
+* obs/elkhorn.py module	  - Elkhorn Slough Reserve GIS data
 * obs/mlml.py module	  - Moss Landing Marine Labs public data
 
 ## Adding new code to the package
