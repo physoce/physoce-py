@@ -69,7 +69,67 @@ Outputs:	ust	- Stokes drift [m/s]
 	ust=A*np.cosh(2*k*(zst+h))
 		
 	return (ust,zst)
- 
+
+def ubwave(Hsig,wavper,h):
+    """
+Ub = ubwave(Hsig,wavper,h)
+
+Calculate bottom wave orbital velocity 
+
+Inputs: 
+Hsig: significant wave height [m]
+per: wave period [s]
+h: bottom depth [m]
+
+Output:
+Ub: wave orbital velocity near the bottom [m/s]
+    """
+    
+    a = Hsig/np.sqrt(8)    # wave amplitude
+    (omega,k,Cph,Cg) = wavedisp(wavper,h)
+    Ub = a*2*np.pi*wavper**-1.*(np.sinh(k*h))**-1
+    return Ub
+
+def ubstream(Hsig,wavper,h,formula='LH',kN=0.03):
+    """
+Uo = ubstream(Hsig,wavper,h,kN,formula='LH')
+    
+Calculate bottom streaming velocity (wave-averaged Eulerian velocity at the top
+of the wave boundary layer).
+    
+Inputs: 
+Hsig: significant wave height [m]
+per: wave period [s]
+h: bottom depth [m]
+formula: 'LH' - Longuet-Higgins (1953) [default]
+         'K' - Kranenburg (2012)
+kN: Nikuradse roughness length (kN = 30*zo)
+    [default = 0.03m, not needed for Longuet-Higgins formula]
+
+Output:
+Uo = velocity at top of wave boundary layer [m/s]
+
+References:
+Longuet-Higgins, M. S. (1953) Mass transport in water waves, Philos. Trans. R.
+    Soc. London, Ser. A, 245(903), 535-581, doi:10.1098/rsta.1953.0006.
+Kranenburg, W. M. et al. (2012) Net currents in the wave bottom boundary layer:
+    On waveshape streaming and progressive wave streaming, 117, F03005, 
+    doi:10.1029/2011JF002070.
+    """
+
+    (omega,k,Cph,Cg) = wavedisp(wavper,h)
+    Ub = ubwave(Hsig,wavper,h) 
+    Ab = Ub*(2*np.pi*wavper**-1)**-1 # near bottom wave excursion
+    if formula == 'LH':
+        fac = 0.75
+    elif formula == 'K':
+        fac = 0.345 + 0.7*(Ab/kN)**-0.9 - 0.25*(np.sinh(k*h))**-2
+    else:
+        raise ValueError('specified formula not understood')
+        
+    Uo = fac*Ub**2*(Cph**-1)
+    return Uo
+
 if __name__ == '__main__':
     
     ### Test wavedisp ###
@@ -111,4 +171,15 @@ if __name__ == '__main__':
     if test:
         print('ustokes test: passed')
     else:
-        raise ValueError('ustokes test: failed')      
+        raise ValueError('ustokes test: failed')     
+        
+    ### Test bottom streaming ###
+    # values from original Matlab function
+    mat_UoK = np.array([0.0058,3.3409e-04])
+    UoK = ubstream(np.array([2.,1.]),np.array([7.,10.]),12,'K')
+    test = np.isclose(mat_UoK,
+                      UoK, atol = 1e-4)             
+    if test.all():
+        print('ubstream test: passed')
+    else:
+        raise ValueError('ubstream test: failed')
