@@ -1,5 +1,6 @@
-# physoce 
-Python tools for physical oceanography at Moss Landing Marine Labs
+# physoce
+
+Python tools for physical oceanography
 
 ## Installation
 
