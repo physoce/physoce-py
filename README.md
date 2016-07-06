@@ -2,6 +2,25 @@
 
 Python tools for physical oceanography
 
+## Contents
+
+#### physoce package
+
+* io.py                   - input/output 
+* graph.py                - graphing and plotting
+* oceans.py               - oceanography-specific
+* stats.py                - statistics
+* tseries.py              - time series 
+* util.py                 - general-purpose
+
+#### physoce.obs sub-package 
+Modules for specific types of publically-available oceanographic data
+
+* obs/lobo.py module      - MBARI LOBO mooring data
+* obs/nerr.py module      - National Estuarine Research Reserve data
+* obs/elkhorn.py module	  - Elkhorn Slough Reserve GIS data
+* obs/mlml.py module	  - Moss Landing Marine Labs public data
+
 ## Installation
 
 #### Inititialize git repository
@@ -73,26 +92,3 @@ functions available in that module:
 from physoce.obs import nerr
 help(nerr)
 ```
-
-## Contents
-
-#### physoce package
-
-* io.py                   - input/output 
-* graph.py                - graphing and plotting
-* oceans.py               - oceanography-specific
-* stats.py                - statistics
-* tseries.py              - time series 
-* util.py                 - general-purpose
-
-#### physoce.obs sub-package 
-Modules for specific types of oceanographic data
-
-* obs/lobo.py module      - MBARI LOBO mooring data
-* obs/nerr.py module      - National Estuarine Research Reserve data
-* obs/elkhorn.py module	  - Elkhorn Slough Reserve GIS data
-* obs/mlml.py module	  - Moss Landing Marine Labs public data
-
-## Adding new code to the package
-
-See the CONTRIBUTING.md file
