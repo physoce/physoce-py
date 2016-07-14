@@ -59,6 +59,14 @@ help(nerr)
 * obs/nerr.py module      - National Estuarine Research Reserve data
 * obs/mlml.py module	  - Moss Landing Marine Labs public data
 
+## Unit Testing
+*** Reformat for Push *** <br>
+I am going to add a unit test for the tseries.py modules. I have spent enough hacking together a test in my processing code,
+that I think it is worth thinking about.
+[Here is where I'm starting](https://jeffknupp.com/blog/2013/12/09/improve-your-python-understanding-unit-testing/)
+
+
+
 ## Adding new code to the package
 
 See the CONTRIBUTING.md file
