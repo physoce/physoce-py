@@ -91,4 +91,25 @@ functions available in that module:
 ```python
 from physoce.obs import nerr
 help(nerr)
+<<<<<<< HEAD
 ```
+=======
+```
+
+## Contents
+
+* io.py module         	- input/output 
+* graph.py module         - graphing and plotting
+* oceans.py module  - oceanography-specific
+* stats.py module         - statistics
+* tseries.py module  		- time series 
+* util.py - general-purpose
+* obs/ sub-package        - modules for specific types of oceanographic data
+* obs/lobo.py module      - MBARI LOBO mooring data
+* obs/nerr.py module      - National Estuarine Research Reserve data
+* obs/mlml.py module	  - Moss Landing Marine Labs public data
+
+## Adding new code to the package
+
+See the CONTRIBUTING.md file
+>>>>>>> Adding a unit test for tseries.py and updated the gitignore to ignore some pycharm files
