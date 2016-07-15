@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-import tseries
+from physoce import tseries
 '''
 Author: Patrick Daniel
 Date: 2016-07-14
