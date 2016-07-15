@@ -91,4 +91,3 @@ functions available in that module:
 ```python
 from physoce.obs import nerr
 help(nerr)
-```
