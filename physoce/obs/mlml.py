@@ -10,7 +10,7 @@ import re
 import os
 import numpy as np
 from glob import glob
-from datetime import datetime
+from datetime import datetime, timedelta
 from physoce import util
 try:
     import pandas as pd
@@ -168,6 +168,12 @@ Output: dictionary, pandas DataFrame or xarray DataSet with keys/variable names 
     # new variable for datetime
     dtime = np.array(util.list2date(d['utc_time'],'%Y-%m-%dT%H:%M:%SZ'))    
 
+    # remove duplicate times
+    ii = np.where(np.diff(dtime) > timedelta(0.))[0]
+    dtime = dtime[ii]
+    for var in varnames:
+        d[var] = d[var][ii]
+        
     # Try loading in pandas or xarray format if specified, default to dictionary format
     if format == 'dataset':
         try:
