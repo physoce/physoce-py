@@ -5,7 +5,12 @@ Tools for working with data from MLML public data portal:
 http://pubdata.mlml.calstate.edu
 '''
 
-from urllib2 import urlopen
+try:
+    # For Python 3.0 and later
+    from urllib.request import urlopen
+except ImportError:
+    # Fall back to Python 2's urllib2
+    from urllib2 import urlopen
 import re
 import os
 import numpy as np
@@ -180,13 +185,13 @@ Output: dictionary, pandas DataFrame or xarray DataSet with keys/variable names 
             reload(xr)
         except NameError:
             format = 'dataframe'
-            print "Warning: xarray not installed, loading MLML data in pandas dataframe format instead"  
+            print("Warning: xarray not installed, loading MLML data in pandas dataframe format instead")  
     if format == 'dataframe':
         try:
             reload(pd)
         except NameError:
             format = 'dict'
-            print "Warning: pandas not installed, loading MLML data in dictionary format instead"
+            print("Warning: pandas not installed, loading MLML data in dictionary format instead")
     
     if format is 'dataframe':
         # turn dictionary into pandas dataframe
