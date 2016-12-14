@@ -13,12 +13,16 @@ except ImportError:
     from urllib2 import urlopen
 import re
 import os
+import sys
 import numpy as np
 from glob import glob
 from datetime import datetime, timedelta
 from physoce import util
 try:
     import pandas as pd
+except ImportError:
+    pass
+try:
     import xarray as xr
 except ImportError:
     pass
@@ -85,7 +89,7 @@ overwrite   - boolean specifying whether to overwrite the existing files
     # get updated readme file
     urlr = urlopen(station_url + '1_README.TXT')
     fr = open(station_dir + '1_README.TXT','w')
-    fr.write(urlr.read())
+    fr.write(str(urlr.read()))
     fr.close()
     urlr.close()
     
@@ -102,7 +106,8 @@ overwrite   - boolean specifying whether to overwrite the existing files
         if any(write_conditions):
             urlfile = urlopen(remote_file)
             f = open(local_file,'w')
-            f.write(urlfile.read())
+            filebytes = urlfile.read()
+            f.write(filebytes.decode('utf8'))
             f.close()
             urlfile.close()
             
@@ -157,7 +162,7 @@ Output: dictionary, pandas DataFrame or xarray DataSet with keys/variable names 
                          skip_header=1,
                          delimiter=',',
                          usecols=tuple(strcols),
-                         dtype='S')
+                         dtype=str)
         
         # append data variables    
         if data.size != 0:    
@@ -181,15 +186,11 @@ Output: dictionary, pandas DataFrame or xarray DataSet with keys/variable names 
         
     # Try loading in pandas or xarray format if specified, default to dictionary format
     if format == 'dataset':
-        try:
-            reload(xr)
-        except NameError:
+        if 'xarray' not in sys.modules:
             format = 'dataframe'
             print("Warning: xarray not installed, loading MLML data in pandas dataframe format instead")  
     if format == 'dataframe':
-        try:
-            reload(pd)
-        except NameError:
+        if 'pandas' not in sys.modules:
             format = 'dict'
             print("Warning: pandas not installed, loading MLML data in dictionary format instead")
     
