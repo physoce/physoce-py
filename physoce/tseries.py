@@ -93,7 +93,7 @@ Output: the filtered time series
         x = np.expand_dims(x,axis=1)
     
     # normalize weights and convolve
-    wtsn = float(wts)/sum(wts) # normalize weights so sum = 1
+    wtsn = wts*sum(wts)**-1 # normalize weights so sum = 1
     xf = signal.convolve(x,wtsn[:,np.newaxis],mode='same')  
     
     # note: np.convolve may be faster 
@@ -101,7 +101,7 @@ Output: the filtered time series
     
     # pad ends of time series
     nwts = len(wts) # number of filter weights
-    npad = np.ceil(0.5*nwts) 
+    npad = int(np.ceil(0.5*nwts))
     xf[:npad,:] = np.nan
     xf[-npad:,:] = np.nan
     
