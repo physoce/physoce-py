@@ -30,7 +30,7 @@ Outputs:
 	
 	x = np.sqrt(c)	
 	
-   	d = 100*np.ones(np.shape(wavper))
+	d = 100*np.ones(np.shape(wavper))
 	tol = 5.*np.finfo(float).eps
 	while (d>tol).any():
 		f1=x*np.tanh(x)-c
