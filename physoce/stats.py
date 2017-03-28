@@ -14,19 +14,19 @@ def nancorr(x,y):
 
 def maxcorr(x,y,**options):
     """
-    (rmax,lag,ind) = maxcorr(x,y,**'maxlag'=int(len(x)/8)):
+    (rmax,lag,ind) = maxcorr(x,y,**'maxlag'=int(len(x)/4)):
     Calculate the maximum lagged correlation between two 1D arrays
     Inputs:
     x,y are 1D arrays
     Options
     'maxlag' the maximum number of lagged correlations to calculate (default: 1/4 of array length)
     Output:
-    r is the maximum correlation coefficient
-    lag is the lag of the maxiumum correlation (positive: y lags x)
+    r is the correlation coefficient with the maximum absolute value
+    lag is the lag of the maximum correlation (positive: y lags x)
     """
     
     nrows = len(x)
-    maxlag = int(np.floor(nrows/8))
+    maxlag = int(np.floor(nrows/4))
     if ('maxlag' in options):
         maxlag = options['maxlag']   
     
@@ -45,7 +45,7 @@ def maxcorr(x,y,**options):
         else:
             rs[ni] = ma.corrcoef(x,y)[0,1]
             
-    ind = ma.argmax(rs)
+    ind = ma.argmax(np.abs(rs))
     rmax = rs[ind] 
     lag = lags[ind]
         
