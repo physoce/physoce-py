@@ -33,7 +33,7 @@ class TseriesTestCase(unittest.TestCase):
         theta,major,minor = tseries.princax(u,v)
         self.assertEqual(theta,90,msg='That is not the major axis: ' + str(theta))
     
-    def test_for_rot_ninty_degrees(self):
+    def test_for_rot_ninety_degrees(self):
         '''
         Test if a horizontal line is correctly rotated 90 degrees using tseries.rot        
         Modified version of in situ test from tseries.py
