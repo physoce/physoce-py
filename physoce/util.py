@@ -20,38 +20,25 @@ def list2date(datestr_list,fmt='%a %b %d %H:%M:%S %Y'):
     datetime_list = [datetime.strptime(datestr, fmt) for datestr in datestr_list]
     return datetime_list
     
-def compass2polar(theta):
+def compasstransform(theta):
     '''
-    Convert an angle from compass direction (clockwise from true North) to direction in polar coordinates (counter-clockwise from x-axis, pointing East).
+    Converts angles between compass direction (clockwise from true North) to direction in polar coordinates (counter-clockwise from x-axis, pointing East). 
+    
+    Note that regardless of which way the conversion is being done (compass -> polar, or polar -> compass), the output of this function will be the same for a given input.
     
     INPUT: 
-    - theta - compass direction (degrees), numpy array
+    - theta: direction (degrees), numpy array
         
     OUTPUT:
-    - direction in polar coordinates (degrees), numpy array of same size
+    - converted direction (degrees), numpy array of same size
+        (0 to 360 degrees)
     '''
-    
-    theta = theta*np.pi/180 # convert to radians
+    theta = np.array(theta)
+    theta = theta*np.pi/180. # convert to radians
     x = -np.sin(-theta)
     y = np.cos(-theta)
-    theta_pol = np.arctan2(y,x)
-    theta_pol = theta_pol*180/np.pi # convert back to degrees
-    return theta_pol
-    
-def polar2compass(theta):
-    '''
-    Convert an angle from direction in polar coordinates (counter-clockwise from x-axis, pointing East) to compass direction (clockwise from true North).
-    
-    INPUT: 
-    - theta - compass direction (degrees), numpy array
-        
-    OUTPUT:
-    - direction in polar coordinates (degrees), numpy array of same size
-    '''
-    
-    theta = theta*np.pi/180 # convert to radians
-    x = np.cos(theta)
-    y = np.sin(theta)
-    theta_comp = -np.arctan2(x,-y)
-    theta_comp = theta_comp*180/np.pi # convert back to degrees
-    return theta_comp
+    theta_out = np.arctan2(y,x)
+    theta_out = theta_out*180/np.pi # convert back to degrees
+    neg = theta_out < 0
+    theta_out[neg] = theta_out[neg]+360
+    return theta_out
