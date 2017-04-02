@@ -191,6 +191,111 @@ rot(1,0,90) returns (0,1)
     vr = np.imag(wr)
     return ur,vr
 
+def depthavg(x,z,h,ssh=None,surface='mixed',bottom='zero'):
+    ''' 
+Compute depth average of each row in 2D array x, with corresponding depths z. 
+
+Designed to accomodate upward looking ADCP data, with moving sea surface and 
+blank bins with no data near surface. If no sea surface height is specified, 
+it is assumed to be at z=0 for all times.
+    
+x: variable to be depth-averaged, 2D array with shape N rows, M columns
+z: measurement depths (z=0 is surface, z=-h is bottom), array of length M
+h: bottom depth (positive value)
+ssh: sea surface height (optional, set to zero if None or where value is undefined)
+surface: boundary condition for surface
+        'mixed' (default) or 'extrap'
+bottom:  boundary condition for bottom 
+        'zero' (default),'mixed' or 'extrap'
+    '''
+    
+    x = np.array(x)
+    z = np.array(z)
+    
+    if np.ndim(x) == 1:
+        x = x[np.newaxis]
+
+    ni,nj = np.shape(x)
+    
+    # If SSH not specified, create an array of zeros
+    if ssh is None:
+        ssh = np.zeros(ni)
+        
+    ssh = np.array(ssh)
+    if np.ndim(ssh) == 0:
+        ssh = ssh[np.newaxis]
+    
+    # ssh in 2D column array
+    ssh2 = np.array([ssh]).T
+    
+    # depths in 2D array
+    sorti = np.argsort(z)
+    zs = z[sorti]
+    zs2 = np.tile(zs,[ni,1])
+    
+    # water depth in 2D column array
+    h2 = np.tile(h,[ni,1])
+    
+    # new 2D x and z arrays to work with, with bottom and surface included
+    zmat = np.hstack([-h2,zs2,ssh2])
+    nans2 = np.nan*np.ones([ni,1])
+    xmat = np.hstack([nans2,x,nans2])
+    
+    # only do calculations for rows where finite data exist    
+    fini = np.isfinite(xmat)
+    ii, = np.where(np.sum(fini,axis=1) > 0)
+
+    # bottom calculation
+    if bottom is 'zero':
+        xmat[ii,0] = 0
+    elif bottom is 'mixed':
+        xmat[:,0] = xmat[:,1]
+    elif bottom is 'extrap':
+        xmat[:,0] = (xmat[:,2]-xmat[:,1])*(zmat[:,0]-zmat[:,1]) \
+                    /(zmat[:,2]-zmat[:,1]) \
+                    + xmat[:,1]
+    else:
+        raise ValueError('depthavg: bottom condition not understood (should be \'mixed\', \'extrap\' or \'zero\')')    
+    
+    # find where depths are higher than sea surface or where there is no data,
+    # mask with NaN Values
+    xmatz = np.copy(xmat)
+    xmatz[ii,-1] = 0
+    msk = (zmat > ssh2) | np.isnan(xmatz)
+    zmatnan = np.copy(zmat)
+    if np.any(msk):
+        zmatnan[msk] = np.nan
+    
+    # sort each row of arrays by depth
+    sj = np.argsort(zmatnan)
+    si = np.arange(np.shape(zmat)[0])[:,np.newaxis]
+    zmats = zmatnan[si,sj]
+    xmats = xmat[si,sj]
+    
+    # column index of surface in each row where data exists
+    jj = (np.sum(np.isfinite(zmats),axis=1)-1)[ii]
+    
+    # calculate surface value
+    if surface == 'mixed':
+        xmats[ii,jj] = xmats[ii,jj-1]
+    elif surface == 'extrap':
+        xmats[ii,jj] = (xmats[ii,jj-1]-xmats[ii,jj-2])*(zmats[ii,jj]-zmats[ii,jj-2]) \
+                     /(zmats[ii,jj-1]-zmats[ii,jj-2]) \
+                     + xmats[ii,jj-2]
+    else:
+        raise ValueError('depthavg: surface condition not understood (should be \'mixed\' or \'extrap\')')
+    
+    # integrate vertically using trapezoidal rule
+    xm = 0.5*(xmats[:,:-1]+xmats[:,1:])
+    dz = np.diff(zmats,axis=1)
+    xint = np.nansum(xm*dz,axis=1)
+    
+    # divide by instantaneous water depth to compute depth average
+    xda = np.nan*ssh
+    xda[ii] = xint[ii]/(ssh[ii] + h)    
+
+    return xda
+    
 def fillgapwithnan(x,date):
     """
 Fill in missing data with NaN values. This is intended for a regular time series that has gaps where no data are reported. 
