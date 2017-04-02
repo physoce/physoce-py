@@ -209,8 +209,9 @@ bottom:  boundary condition for bottom
         'zero' (default),'mixed' or 'extrap'
     '''
     
-    x = np.array(x)
-    z = np.array(z)
+    # ensure that inputs are arrays of floats
+    x = np.array(x).astype('float')
+    z = np.array(z).astype('float')
     
     if np.ndim(x) == 1:
         x = x[np.newaxis]
@@ -247,7 +248,7 @@ bottom:  boundary condition for bottom
 
     # bottom calculation
     if bottom is 'zero':
-        xmat[ii,0] = 0
+        xmat[ii,0] = 0.
     elif bottom is 'mixed':
         xmat[:,0] = xmat[:,1]
     elif bottom is 'extrap':
@@ -260,7 +261,7 @@ bottom:  boundary condition for bottom
     # find where depths are higher than sea surface or where there is no data,
     # mask with NaN Values
     xmatz = np.copy(xmat)
-    xmatz[ii,-1] = 0
+    xmatz[ii,-1] = 0.
     msk = (zmat > ssh2) | np.isnan(xmatz)
     zmatnan = np.copy(zmat)
     if np.any(msk):
