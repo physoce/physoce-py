@@ -33,7 +33,7 @@ Reference: Emery and Thomson, 2004, Data Analysis Methods in Physical Oceanograp
     """
 
     cph = 1./dt   # samples per hour
-    nwts = int(round(120*cph)) # number of weights
+    nwts = int(np.round(120*cph)) # number of weights
     
     # create filter weights
     wts = signal.firwin(nwts, 
@@ -61,7 +61,7 @@ Matlab code: http://woodshole.er.usgs.gov/operations/sea-mat/bobstuff-html/pl66t
     
     Tn=float(T)/dt # normalized cutoff period
     fqn=1./Tn # normalized cutoff frequency
-    nw = int(round(2.*T/dt)) # number of weights on one side
+    nw = int(np.round(2.*T/dt)) # number of weights on one side
     
     # create filter weights
     j = np.arange(1,nw)
