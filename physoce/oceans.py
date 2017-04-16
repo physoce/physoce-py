@@ -44,32 +44,49 @@ Outputs:
 	return (omega,k,Cph,Cg)
 
 def ustokes(Hsig,wavper,h,zst=()):
-	""" 
+    """ 
 ust,zst = ustokes(Hsig,wavper,h,zst=()):
 Stokes drift magnitude
 ---------------------
 Inputs:     Hsig	- significant wave height [m]
-            wavper	- wave period [s]
-            h     - bottom depth [m]
-            zst	- depths of calculation [m] 
-            (optional, every 1m if not given)
-            
+        wavper	- wave period [s]
+        h     - bottom depth [m]
+        zst	- depths of calculation [m] 
+        (optional, every 1m if not given)
+        
 Outputs:	ust	- Stokes drift [m/s]
 			zst	- depths of calculation [m]
-    """
-	
-	"""T Connolly 2014
-	based on Matlab function ustokes.m from S Lentz"""
-	
-	if not any(zst):
-		zst = np.arange(0,-h-1,-1)
-		
-	(omega,k,Cph,Cg)=wavedisp(wavper,h)
-	A=Hsig**2*omega*k/(16*np.sinh(k*h)**2)
-	ust=A*np.cosh(2*k*(zst+h))
-		
-	return (ust,zst)
+   """
 
+    """T Connolly 2014
+    based on Matlab function ustokes.m from S Lentz"""
+    
+    if not any(zst):
+        zst = np.arange(0,-h-1,-1)	
+    (omega,k,Cph,Cg)=wavedisp(wavper,h)
+    A=Hsig**2*omega*k/(16*np.sinh(k*h)**2)
+    ust=A*np.cosh(2*k*(zst+h))
+    return (ust,zst)
+     
+def ustokesda(Hsig,wavper,h):
+    """ 
+depth-averaged Stokes drift magnitude
+-------------------------------------
+Inputs:     Hsig	- significant wave height [m]
+            wavper	- wave period [s]
+            h     - bottom depth [m]
+            
+Outputs:	  depth-averaged Stokes drift [m/s]
+    """
+    
+    g = 9.8
+    
+    (omega,k,Cph,Cg)=wavedisp(wavper,h)
+    Q=g*Hsig**2/(16*Cph) # depth-integrated Stokes drift
+    ust_da  = Q/h
+    
+    return ust_da
+ 
 def ubwave(Hsig,wavper,h):
     """
 Ub = ubwave(Hsig,wavper,h)
