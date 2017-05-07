@@ -49,7 +49,7 @@ class OceansTestCase(unittest.TestCase):
             ust0_mat = np.array([0.0545,0.0545])
             test = np.isclose(ust0_mat,ust[:,0],atol=1e-4)
         except ValueError:
-            test = False
+            test =[False, False]
         self.assertTrue(test.all(),msg='ustokes vector input test: failed')
         
     def test_bstream(self):
