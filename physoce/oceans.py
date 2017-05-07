@@ -61,6 +61,9 @@ Outputs:	ust	- Stokes drift [m/s], 1D or 2D array
     """T Connolly 2014
     based on Matlab function ustokes.m from S Lentz"""
     
+    Hsig = np.atleast_1d(Hsig)
+    wavper = np.atleast_1d(wavper)
+    
     if not any(zst):
         zst = np.arange(0,-h-1,-1)
     
@@ -68,13 +71,11 @@ Outputs:	ust	- Stokes drift [m/s], 1D or 2D array
     (omega,k,Cph,Cg)=wavedisp(wavper,h)
     
     # create 2D arrays
-    m = len(np.atleast_1d(Hsig))
-    n = len(zst)
-    zst = np.tile(zst,(m,1))
-    Hsig = np.tile(np.array([Hsig]).T,(1,n))
-    wavper = np.tile(np.array([wavper]).T,(1,n))
-    k = np.tile(np.array([k]).T,(1,n))
-    omega = np.tile(np.array([omega]).T,(1,n))
+    zst = zst[np.newaxis,:]
+    Hsig = Hsig[:,np.newaxis]
+    wavper = wavper[:,np.newaxis]
+    k = k[:,np.newaxis]
+    omega = omega[:,np.newaxis]
     
     # compute Stokes drift
     A=Hsig**2*omega*k/(16*np.sinh(k*h)**2)
