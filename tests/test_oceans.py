@@ -42,6 +42,16 @@ class OceansTestCase(unittest.TestCase):
         test = np.isclose(ust0_mat,ust0,atol=1e-4)
         self.assertTrue(test,msg='ustokes test: failed')
         
+    def test_ustokes_vectorinput(self):
+        ### Test ustokes with vector input ###
+        try:
+            ust,zst = oceans.ustokes([2,2],[7,7],12)
+            ust0_mat = np.array([0.0545,0.0545])
+            test = np.isclose(ust0_mat,ust[:,0],atol=1e-4)
+        except ValueError:
+            test = False
+        self.assertTrue(test.all(),msg='ustokes vector input test: failed')
+        
     def test_bstream(self):
         ### Test bottom streaming ###
         # values from original Matlab function

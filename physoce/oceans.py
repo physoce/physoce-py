@@ -48,13 +48,13 @@ def ustokes(Hsig,wavper,h,zst=()):
 ust,zst = ustokes(Hsig,wavper,h,zst=()):
 Stokes drift magnitude
 ---------------------
-Inputs:     Hsig	- significant wave height [m]
-        wavper	- wave period [s]
-        h     - bottom depth [m]
-        zst	- depths of calculation [m] 
-        (optional, every 1m if not given)
+Inputs:     Hsig	- significant wave height [m], single value or 1D array
+            wavper	- wave period [s], single value or 1D array
+            h     - bottom depth [m], single value
+            zst	- depths of calculation [m] 
+            (optional, every 1m if not given)
         
-Outputs:	ust	- Stokes drift [m/s]
+Outputs:	ust	- Stokes drift [m/s], 1D or 2D array
 			zst	- depths of calculation [m]
    """
 
@@ -62,10 +62,18 @@ Outputs:	ust	- Stokes drift [m/s]
     based on Matlab function ustokes.m from S Lentz"""
     
     if not any(zst):
-        zst = np.arange(0,-h-1,-1)	
+        zst = np.arange(0,-h-1,-1)
+    
+    # Create 2D arrays for Hsig and wavper
+    Hsig = np.tile(np.array([Hsig]).T,(1,len(zst)))
+    wavper = np.tile(np.array([wavper]).T,(1,len(zst)))
+    
+    # compute wave characteristics and Stokes drift
     (omega,k,Cph,Cg)=wavedisp(wavper,h)
     A=Hsig**2*omega*k/(16*np.sinh(k*h)**2)
     ust=A*np.cosh(2*k*(zst+h))
+    
+    ust = np.squeeze(ust)
     return (ust,zst)
      
 def ustokesda(Hsig,wavper,h):
@@ -188,7 +196,14 @@ if __name__ == '__main__':
     if test:
         print('ustokes test: passed')
     else:
-        raise ValueError('ustokes test: failed')     
+        raise ValueError('ustokes test: failed')   
+        
+    ### Test ustokes vector input ###
+    try:
+        ust,zst = ustokes([2,2],[7,7],12)
+        print('ustokes vector input test: passed')
+    except ValueError:
+        raise ValueError('ustokes vector input test: failed') 
         
     ### Test bottom streaming ###
     # values from original Matlab function
