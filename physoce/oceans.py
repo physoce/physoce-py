@@ -48,24 +48,40 @@ def ustokes(Hsig,wavper,h,zst=()):
 ust,zst = ustokes(Hsig,wavper,h,zst=()):
 Stokes drift magnitude
 ---------------------
-Inputs:     Hsig	- significant wave height [m]
-        wavper	- wave period [s]
-        h     - bottom depth [m]
-        zst	- depths of calculation [m] 
-        (optional, every 1m if not given)
+Inputs:     Hsig	- significant wave height [m], single value or 1D array
+            wavper	- wave period [s], single value or 1D array
+            h     - bottom depth [m], single value
+            zst	- depths of calculation [m] 
+            (optional, every 1m if not given)
         
-Outputs:	ust	- Stokes drift [m/s]
+Outputs:	ust	- Stokes drift [m/s], 1D or 2D array
 			zst	- depths of calculation [m]
    """
 
     """T Connolly 2014
     based on Matlab function ustokes.m from S Lentz"""
     
+    Hsig = np.atleast_1d(Hsig)
+    wavper = np.atleast_1d(wavper)
+    
     if not any(zst):
-        zst = np.arange(0,-h-1,-1)	
+        zst = np.arange(0,-h-1,-1)
+    
+    # compute wave characteristics
     (omega,k,Cph,Cg)=wavedisp(wavper,h)
+    
+    # create 2D arrays
+    zst = zst[np.newaxis,:]
+    Hsig = Hsig[:,np.newaxis]
+    wavper = wavper[:,np.newaxis]
+    k = k[:,np.newaxis]
+    omega = omega[:,np.newaxis]
+    
+    # compute Stokes drift
     A=Hsig**2*omega*k/(16*np.sinh(k*h)**2)
     ust=A*np.cosh(2*k*(zst+h))
+    
+    ust = np.squeeze(ust)
     return (ust,zst)
      
 def ustokesda(Hsig,wavper,h):
@@ -146,57 +162,3 @@ Kranenburg, W. M. et al. (2012) Net currents in the wave bottom boundary layer:
         
     Uo = fac*Ub**2*(Cph**-1)
     return Uo
-
-if __name__ == '__main__':
-    
-    ### Test wavedisp ###
-    # check just one value
-    mat_omega = 0.8976
-    mat_k = 0.0990
-    mat_Cph = 9.0631
-    mat_Cg = 6.5488
-    omega,k,Cph,Cg = wavedisp(7,12)
-    test = np.isclose(np.array([omega,k,Cph,Cg]),
-                      np.array([mat_omega,mat_k,mat_Cph,mat_Cg]),
-                          atol = 1e-4)             
-    if test.all():
-        print('wavedisp test #1: passed')
-    else:
-        raise ValueError('wavedisp test #1: failed')    
-    
-    # test multiple values
-    # values from original Matlab function
-    mat_omega = np.array([0.8976,0.6283])
-    mat_k = np.array([0.0990,0.0630])
-    mat_Cph = np.array([9.0631,9.9667])
-    mat_Cg = np.array([6.5488,8.4740])
-    omega,k,Cph,Cg = wavedisp([7,10],12)
-    test = np.isclose(np.array([omega,k,Cph,Cg]),
-                      np.array([mat_omega,mat_k,mat_Cph,mat_Cg]),
-                          atol = 1e-4)             
-    if test.all():
-        print('wavedisp test #2: passed')
-    else:
-        raise ValueError('wavedisp test #2: failed')
-        
-    ### Test ustokes ###
-    # values from original Matlab function
-    ust0_mat = 0.0545
-    ust,zst = ustokes(2,7,12)
-    ust0 = ust[0]
-    test = np.isclose(ust0_mat,ust0,atol=1e-4)
-    if test:
-        print('ustokes test: passed')
-    else:
-        raise ValueError('ustokes test: failed')     
-        
-    ### Test bottom streaming ###
-    # values from original Matlab function
-    mat_UoK = np.array([0.0058,3.3409e-04])
-    UoK = ubstream(np.array([2.,1.]),np.array([7.,10.]),12,'K')
-    test = np.isclose(mat_UoK,
-                      UoK, atol = 1e-4)             
-    if test.all():
-        print('ubstream test: passed')
-    else:
-        raise ValueError('ubstream test: failed')
