@@ -94,7 +94,7 @@ Output: the filtered time series
     
     # normalize weights and convolve
     wtsn = wts*sum(wts)**-1 # normalize weights so sum = 1
-    xf = signal.convolve(x,wtsn[:,np.newaxis],mode='same')  
+    xf = signal.convolve(x,wtsn[:,np.newaxis],mode='same',method='direct')  
     
     # note: np.convolve may be faster 
     # http://scipy.github.io/old-wiki/pages/Cookbook/ApplyFIRFilter
