@@ -341,16 +341,16 @@ newdate = new datetime values
         nstep = int(round((tdiff.total_seconds()/deltat.total_seconds())))-1 
         for step in np.arange(nstep):
             t = newdate[-1]+deltat
-            newdate.append(t)
+            newdate = np.append(newdate,t)
         gapnans = np.nan*np.ones((nstep,np.shape(x)[1]))
         newx = np.vstack((newx,gapnans))
         if ii!=gapi[-1]:
             i1 = ii+1
             i2 = gapi[cnt+1]
-            newdate = newdate+date[i1:i2+1]
+            newdate = np.append(newdate,date[i1:i2+1])
             newx = np.vstack((newx,x[i1:i2+1,:]))
         else:
-            newdate = newdate + date[ii+1:]
+            newdate = np.append(newdate,date[ii+1:])
             newx = np.vstack((newx,x[ii+1:,:]))
         cnt=cnt+1
 
