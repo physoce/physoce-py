@@ -21,6 +21,50 @@ def list2date(datestr_list,fmt='%a %b %d %H:%M:%S %Y'):
     datetime_list = [datetime.strptime(datestr, fmt) for datestr in datestr_list]
     return datetime_list
 
+def matlab2datetime64(datenum,unit='s'):
+    '''
+    Convert Matlab serial date number to NumPy datetime64 format.
+
+    INPUTS:
+    datenum - Matlab serial date number, can be array
+    unit - time unit of datetime64 output (default 's')
+
+    OUTPUT:
+    array of datetime64 objects
+    '''
+    origin = np.datetime64('0000-01-01 00:00:00', unit) - np.timedelta64(1, 'D')
+    daylength = int(np.timedelta64(1,'D')/np.timedelta64(1, unit))
+    dt64 = datenum * np.timedelta64(daylength, unit) + origin
+    return dt64
+
+def haversine(lat, lon):
+    """
+    Calculate the great circle distances between a set of points
+    on the earth (specified in decimal degrees).
+
+    INPUTS:
+    lat,lon -  1D arrays of coordinate pairs (length N)
+
+    OUTPUT:
+    great circle distances between consecutive points in km (length N-1)
+    """
+
+    lat1 = lat[:-1]
+    lon1 = lon[:-1]
+    lat2 = lat[1:]
+    lon2 = lon[1:]
+
+    lat1, lon1, lat2, lon2 = map(np.radians, [lat1, lon1, lat2, lon2])
+
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+
+    a = np.sin(dlat/2.0)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2.0)**2
+
+    c = 2 * np.arcsin(np.sqrt(a))
+    km = 6371 * c
+    return km
+
 def compasstransform(theta):
     '''
     Converts angles between compass direction (clockwise from true North) to direction in polar coordinates (counter-clockwise from x-axis, pointing East).
