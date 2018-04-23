@@ -1,0 +1,493 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>physoce package &#8212; physoce  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="physoce-package">
+<h1>physoce package<a class="headerlink" href="#physoce-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-physoce.graph">
+<span id="physoce-graph-module"></span><h2>physoce.graph module<a class="headerlink" href="#module-physoce.graph" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="physoce.graph.TS_contours">
+<code class="descclassname">physoce.graph.</code><code class="descname">TS_contours</code><span class="sig-paren">(</span><em>SP_range</em>, <em>T_range</em>, <em>sigma_levels</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/graph.html#TS_contours"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.graph.TS_contours" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot contours of density anomaly (sigma) on a T-S plot. Uses EOS-80 equation of state. If the T_range input is in-situ T, then the sigma-t values are contoured. If the temperature input is potential temperature (theta), then the sigma-theta values are contoured (see Stewart 2005 for definitions).</p>
+<p>INPUTS:
+SP_range: Practical salinity, minimum and maximum values
+T_range: In-situ or potential temperature [C], minimum and maximum values
+sigma_levels: density anomaly values to contour
+<a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs: these will be passed to the contour function, see <a class="reference external" href="http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.contour">http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.contour</a></p>
+<p>RETURNS:
+cs: the matplotlib.contour.QuadContourSet object returned by contour (can</p>
+<blockquote>
+<div>be used as input to pyplot.clabel function, for example).</div></blockquote>
+<p>REQUIRES:
+Seawater toolbox: <a class="reference external" href="https://pypi.python.org/pypi/seawater">https://pypi.python.org/pypi/seawater</a></p>
+<p>Reference:
+Stewart, R. H. (2005) Introduction to Physical Oceanography. <a class="reference external" href="http://oceanworld.tamu.edu/resources/ocng_textbook/chapter06/chapter06_05.htm">http://oceanworld.tamu.edu/resources/ocng_textbook/chapter06/chapter06_05.htm</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.graph.plts">
+<code class="descclassname">physoce.graph.</code><code class="descname">plts</code><span class="sig-paren">(</span><em>date</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/graph.html#plts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.graph.plts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a multi-year time series y as a function of time of year (rather than absolute time). The time series from each separate year is plotted in a different color, with months on the x-axis. Useful for visualizing seasonal patterns.</p>
+<p>Inputs:
+date - a list of datetime objects
+y - a numpy array</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-physoce.io">
+<span id="physoce-io-module"></span><h2>physoce.io module<a class="headerlink" href="#module-physoce.io" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="physoce.io.loadmat">
+<code class="descclassname">physoce.io.</code><code class="descname">loadmat</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/io.html#loadmat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.io.loadmat" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is an alternative to directly calling scipy.io.loadmat
+and cures the problem of not properly recovering python dictionaries
+from mat files. It calls the function check_keys() to cure all entries
+which are still mat-objects.</p>
+<p>Useful for loading comlicated structures with multiple nested levels.</p>
+<p>Source: Stack Overflow 
+<a class="reference external" href="http://stackoverflow.com/questions/7008608/scipy-io-loadmat-nested-structures-i-e-dictionaries">http://stackoverflow.com/questions/7008608/scipy-io-loadmat-nested-structures-i-e-dictionaries</a>
+Author: mergen
+<a class="reference external" href="http://stackoverflow.com/users/887597/mergen">http://stackoverflow.com/users/887597/mergen</a>
+License: Creative Commons Attribution-ShareAlike 3.0
+<a class="reference external" href="http://creativecommons.org/licenses/by-sa/3.0/">http://creativecommons.org/licenses/by-sa/3.0/</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.io.print_mat_nested">
+<code class="descclassname">physoce.io.</code><code class="descname">print_mat_nested</code><span class="sig-paren">(</span><em>d</em>, <em>indent=0</em>, <em>nkeys=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/io.html#print_mat_nested"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.io.print_mat_nested" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print nested structures in a dictionary, d, created with loadmat()</p>
+<p>Source: PyHOGS
+<a class="reference external" href="http://pyhogs.github.io/reading-mat-files.html">http://pyhogs.github.io/reading-mat-files.html</a>   
+Author: JP Rinehimer</p>
+<p>Inspired by: 
+Stack Overflow 
+<a class="reference external" href="http://stackoverflow.com/questions/3229419/pretty-printing-nested-dictionaries-in-python">http://stackoverflow.com/questions/3229419/pretty-printing-nested-dictionaries-in-python</a>
+Author: sth
+<a class="reference external" href="http://stackoverflow.com/users/56338/sth">http://stackoverflow.com/users/56338/sth</a></p>
+<p>Modified by T. Connolly for Python 3 compatibility, as suggested by “Drunken Master” 
+(<a class="reference external" href="http://stackoverflow.com/users/4592067/drunken-master">http://stackoverflow.com/users/4592067/drunken-master</a>) in response to sth’s SO post above</p>
+<p>License: Creative Commons Attribution-ShareAlike 3.0
+<a class="reference external" href="http://creativecommons.org/licenses/by-sa/3.0/">http://creativecommons.org/licenses/by-sa/3.0/</a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-physoce.oceans">
+<span id="physoce-oceans-module"></span><h2>physoce.oceans module<a class="headerlink" href="#module-physoce.oceans" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="physoce.oceans.ubstream">
+<code class="descclassname">physoce.oceans.</code><code class="descname">ubstream</code><span class="sig-paren">(</span><em>Hsig</em>, <em>wavper</em>, <em>h</em>, <em>formula='LH'</em>, <em>kN=0.03</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/oceans.html#ubstream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.oceans.ubstream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uo = ubstream(Hsig,wavper,h,kN,formula=’LH’)</p>
+<p>Calculate bottom streaming velocity (wave-averaged Eulerian velocity at the top
+of the wave boundary layer).</p>
+<p>Inputs: 
+Hsig: significant wave height [m]
+per: wave period [s]
+h: bottom depth [m]
+formula: ‘LH’ - Longuet-Higgins (1953) [default]</p>
+<blockquote>
+<div>‘K’ - Kranenburg (2012)</div></blockquote>
+<dl class="docutils">
+<dt>kN: Nikuradse roughness length (kN = 30*zo)</dt>
+<dd>[default = 0.03m, not needed for Longuet-Higgins formula]</dd>
+</dl>
+<p>Output:
+Uo = velocity at top of wave boundary layer [m/s]</p>
+<p>References:
+Longuet-Higgins, M. S. (1953) Mass transport in water waves, Philos. Trans. R.</p>
+<blockquote>
+<div>Soc. London, Ser. A, 245(903), 535-581, doi:10.1098/rsta.1953.0006.</div></blockquote>
+<dl class="docutils">
+<dt>Kranenburg, W. M. et al. (2012) Net currents in the wave bottom boundary layer:</dt>
+<dd>On waveshape streaming and progressive wave streaming, 117, F03005, 
+doi:10.1029/2011JF002070.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.oceans.ubwave">
+<code class="descclassname">physoce.oceans.</code><code class="descname">ubwave</code><span class="sig-paren">(</span><em>Hsig</em>, <em>wavper</em>, <em>h</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/oceans.html#ubwave"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.oceans.ubwave" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ub = ubwave(Hsig,wavper,h)</p>
+<p>Calculate bottom wave orbital velocity</p>
+<p>Inputs: 
+Hsig: significant wave height [m]
+per: wave period [s]
+h: bottom depth [m]</p>
+<p>Output:
+Ub: wave orbital velocity near the bottom [m/s]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.oceans.ustokes">
+<code class="descclassname">physoce.oceans.</code><code class="descname">ustokes</code><span class="sig-paren">(</span><em>Hsig</em>, <em>wavper</em>, <em>h</em>, <em>zst=()</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/oceans.html#ustokes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.oceans.ustokes" title="Permalink to this definition">¶</a></dt>
+<dd><p>ust,zst = ustokes(Hsig,wavper,h,zst=()):
+Stokes drift magnitude
+———————
+Inputs:     Hsig        - significant wave height [m], single value or 1D array</p>
+<blockquote>
+<div>wavper      - wave period [s], single value or 1D array
+h     - bottom depth [m], single value
+zst - depths of calculation [m] 
+(optional, every 1m if not given)</div></blockquote>
+<dl class="docutils">
+<dt>Outputs:        ust     - Stokes drift [m/s], 1D or 2D array</dt>
+<dd>zst     - depths of calculation [m]</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.oceans.ustokesda">
+<code class="descclassname">physoce.oceans.</code><code class="descname">ustokesda</code><span class="sig-paren">(</span><em>Hsig</em>, <em>wavper</em>, <em>h</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/oceans.html#ustokesda"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.oceans.ustokesda" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Inputs:     Hsig        - significant wave height [m]</dt>
+<dd>wavper      - wave period [s]
+h     - bottom depth [m]</dd>
+</dl>
+<p>Outputs:          depth-averaged Stokes drift [m/s]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.oceans.wavedisp">
+<code class="descclassname">physoce.oceans.</code><code class="descname">wavedisp</code><span class="sig-paren">(</span><em>wavper</em>, <em>h</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/oceans.html#wavedisp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.oceans.wavedisp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns [omega,k,Cph,Cg]</p>
+<dl class="docutils">
+<dt>Inputs (can use arrays):        </dt>
+<dd>wavper  - wave period [s]
+h       - water depth [m]</dd>
+<dt>Outputs:        </dt>
+<dd>omega   - angular wave frequency [radians/s]
+k       - angular wave number    [radians/m]
+Cph     - phase speed [m/s]
+Cg      - group velocity [m/s]</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-physoce.stats">
+<span id="physoce-stats-module"></span><h2>physoce.stats module<a class="headerlink" href="#module-physoce.stats" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="physoce.stats.maxcorr">
+<code class="descclassname">physoce.stats.</code><code class="descname">maxcorr</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>**options</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/stats.html#maxcorr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.stats.maxcorr" title="Permalink to this definition">¶</a></dt>
+<dd><p>(rmax,lag,ind) = maxcorr(x,y,**’maxlag’=int(len(x)/4)):
+Calculate the maximum lagged correlation between two 1D arrays
+Inputs:
+x,y are 1D arrays
+Options
+‘maxlag’ the maximum number of lagged correlations to calculate (default: 1/4 of array length)
+Output:
+r is the correlation coefficient with the maximum absolute value
+lag is the lag of the maximum correlation (positive: y lags x)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.stats.nancorr">
+<code class="descclassname">physoce.stats.</code><code class="descname">nancorr</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/stats.html#nancorr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.stats.nancorr" title="Permalink to this definition">¶</a></dt>
+<dd><p>r = nancorr(x,y)
+Calculate correlation matrix, treating NaN values as missing data</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.stats.rcrit">
+<code class="descclassname">physoce.stats.</code><code class="descname">rcrit</code><span class="sig-paren">(</span><em>nu</em>, <em>sig=0.05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/stats.html#rcrit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.stats.rcrit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Critical r (correlation coefficient), given significance level
+and degrees of freedom.</p>
+<p>INPUTS:
+nu - degrees of freedom (N-2)        
+sig - significance level (default 0.05)</p>
+<p>OUTPUT:
+rcrit - critical r value</p>
+<p>Values for 0.05 and 0.01 correspond with Appendix E in
+Emery and Thomson (2004) Data Analysis Methods in Physical 
+Oceanography</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.stats.rsig">
+<code class="descclassname">physoce.stats.</code><code class="descname">rsig</code><span class="sig-paren">(</span><em>r</em>, <em>nu</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/stats.html#rsig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.stats.rsig" title="Permalink to this definition">¶</a></dt>
+<dd><p>p-value for correlation coefficient r, and degrees of freedom nu</p>
+<p>INPUTS:
+r - correlation coefficient
+nu - degrees of freedom (N-2)</p>
+<p>OUTPUT:
+p - significance level/p-value</p>
+<p>significance levels of 0.05 and 0.01 correspond with Appendix E in
+Emery and Thomson (2004) Data Analysis Methods in Physical 
+Oceanography</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-physoce.tseries">
+<span id="physoce-tseries-module"></span><h2>physoce.tseries module<a class="headerlink" href="#module-physoce.tseries" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="physoce.tseries.depthavg">
+<code class="descclassname">physoce.tseries.</code><code class="descname">depthavg</code><span class="sig-paren">(</span><em>x</em>, <em>z</em>, <em>h</em>, <em>ssh=None</em>, <em>surface='mixed'</em>, <em>bottom='zero'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/tseries.html#depthavg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.tseries.depthavg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute depth average of each row in 2D array x, with corresponding depths z.</p>
+<p>Designed to accomodate upward looking ADCP data, with moving sea surface and 
+blank bins with no data near surface. If no sea surface height is specified, 
+it is assumed to be at z=0 for all times.</p>
+<p>x: variable to be depth-averaged, 2D array with shape N rows, M columns
+z: measurement depths (z=0 is surface, z=-h is bottom), array of length M
+h: bottom depth (positive value)
+ssh: sea surface height (optional, set to zero if None or where value is undefined)
+surface: boundary condition for surface</p>
+<blockquote>
+<div>‘mixed’ (default) or ‘extrap’</div></blockquote>
+<dl class="docutils">
+<dt>bottom:  boundary condition for bottom </dt>
+<dd>‘zero’ (default),’mixed’ or ‘extrap’</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.tseries.fillgapwithnan">
+<code class="descclassname">physoce.tseries.</code><code class="descname">fillgapwithnan</code><span class="sig-paren">(</span><em>x</em>, <em>date</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/tseries.html#fillgapwithnan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.tseries.fillgapwithnan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill in missing data with NaN values. This is intended for a regular time series that has gaps where no data are reported.</p>
+<p>Although this function is intended for regularly-sampled time series (with gaps), it does allow for some slight irregularity (e.g. 13:00,14:00,15:00,15:59,16:59…)</p>
+<p>Inputs:
+x - a numpy array of data (1 or 2 dimensions)
+date - datetime values that correspond to x</p>
+<p>Returns:
+(newx,newdate)
+newx - new array of data
+newdate = new datetime values</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.tseries.hanning">
+<code class="descclassname">physoce.tseries.</code><code class="descname">hanning</code><span class="sig-paren">(</span><em>x</em>, <em>N</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/tseries.html#hanning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.tseries.hanning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter a time series x with a Hanning window of length N. If x is 2D, the time series will be filtered along columns.</p>
+<p>Inputs:
+x - a numpy array to be filtered
+N - width of window</p>
+<p>Output: numpy array of filtered time series</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.tseries.lancz">
+<code class="descclassname">physoce.tseries.</code><code class="descname">lancz</code><span class="sig-paren">(</span><em>x</em>, <em>dt=1</em>, <em>T=40</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/tseries.html#lancz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.tseries.lancz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter a time series x with cosine-Lanczos filter. If x is 2D, the time series will be filtered along columns.</p>
+<p>The default half amplitude period of 40 hours corresponds to a frequency of 0.6 cpd. A half amplitude period of 34.29h corresponds to 0.7 cpd. The 40 hour half amplitude period is more effective at reducing diurnal-band variability but shifts periods of variability in low passed time series to &gt;2 days.</p>
+<p>Inputs:
+x - a numpy array to be filtered. 
+dt - sample interval (hours), default = 1
+T - half-amplitude period (hours), default = 40</p>
+<p>Output: numpy array of filtered time series, same size as input with ends NaN values at start and end.</p>
+<p>Reference: Emery and Thomson, 2004, Data Analysis Methods in Physical Oceanography. 2nd Ed., pp. 539-540. Section 5.10.7.4 - The Hanning window.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.tseries.pl66">
+<code class="descclassname">physoce.tseries.</code><code class="descname">pl66</code><span class="sig-paren">(</span><em>x</em>, <em>dt=1</em>, <em>T=33</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/tseries.html#pl66"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.tseries.pl66" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter a time series x with the PL66 filter. If x is 2D, the time series will be filtered along columns.</p>
+<p>Inputs:
+x - a numpy array to be filtered. 
+dt - sample interval (hours), default = 1
+T - half-amplitude period (hours), default = 33</p>
+<p>Output: numpy array of filtered time series, same size as input with ends NaN values at start and end.</p>
+<p>Reference: Rosenfeld (1983), WHOI Technical Report 85-35
+Matlab code: <a class="reference external" href="http://woodshole.er.usgs.gov/operations/sea-mat/bobstuff-html/pl66tn.html">http://woodshole.er.usgs.gov/operations/sea-mat/bobstuff-html/pl66tn.html</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.tseries.princax">
+<code class="descclassname">physoce.tseries.</code><code class="descname">princax</code><span class="sig-paren">(</span><em>u</em>, <em>v=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/tseries.html#princax"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.tseries.princax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Principal axes of a vector time series.</p>
+<p>Usage:
+theta,major,minor = princax(u,v) # if u and v are real-valued vector components</p>
+<blockquote>
+<div>or</div></blockquote>
+<p>theta,major,minor = princax(w)   # if w is a complex vector</p>
+<p>Input:
+u,v - 1-D arrays of vector components (e.g. u = eastward velocity, v = northward velocity)</p>
+<blockquote>
+<div>or</div></blockquote>
+<p>w - 1-D array of complex vectors (u + 1j*v)</p>
+<p>Output:
+theta - angle of major axis (math notation, e.g. east = 0, north = 90)
+major - standard deviation along major axis
+minor - standard deviation along minor axis</p>
+<p>Reference: Emery and Thomson, 2001, Data Analysis Methods in Physical Oceanography, 2nd ed., pp. 325-328.
+Matlab function: <a class="reference external" href="http://woodshole.er.usgs.gov/operations/sea-mat/RPSstuff-html/princax.html">http://woodshole.er.usgs.gov/operations/sea-mat/RPSstuff-html/princax.html</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.tseries.rot">
+<code class="descclassname">physoce.tseries.</code><code class="descname">rot</code><span class="sig-paren">(</span><em>u</em>, <em>v</em>, <em>theta</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/tseries.html#rot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.tseries.rot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate a vector counter-clockwise OR rotate the coordinate system clockwise.</p>
+<p>Usage:
+ur,vr = rot(u,v,theta)</p>
+<p>Input: 
+u,v - vector components (e.g. u = eastward velocity, v = northward velocity)
+theta - rotation angle (degrees)</p>
+<p>Output:
+ur,vr - rotated vector components</p>
+<p>Example: 
+rot(1,0,90) returns (0,1)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-physoce.util">
+<span id="physoce-util-module"></span><h2>physoce.util module<a class="headerlink" href="#module-physoce.util" title="Permalink to this headline">¶</a></h2>
+<p>General purpose functions.</p>
+<dl class="function">
+<dt id="physoce.util.compasstransform">
+<code class="descclassname">physoce.util.</code><code class="descname">compasstransform</code><span class="sig-paren">(</span><em>theta</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/util.html#compasstransform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.util.compasstransform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts angles between compass direction (clockwise from true North) to direction in polar coordinates (counter-clockwise from x-axis, pointing East).</p>
+<p>Note that regardless of which way the conversion is being done (compass -&gt; polar, or polar -&gt; compass), the output of this function will be the same for a given input.</p>
+<p>INPUT:
+- theta: direction (degrees), numpy array</p>
+<p>OUTPUT:
+- converted direction (degrees), numpy array of same size</p>
+<blockquote>
+<div>(0 to 360 degrees)</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.util.haversine">
+<code class="descclassname">physoce.util.</code><code class="descname">haversine</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/util.html#haversine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.util.haversine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the great circle distances between a set of points
+on the earth (specified in decimal degrees).</p>
+<p>INPUTS:
+lat,lon -  1D arrays of coordinate pairs (length N)</p>
+<p>OUTPUT:
+great circle distances between consecutive points in km (length N-1)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.util.inside">
+<code class="descclassname">physoce.util.</code><code class="descname">inside</code><span class="sig-paren">(</span><em>xpt</em>, <em>ypt</em>, <em>xpoly</em>, <em>ypoly</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/util.html#inside"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.util.inside" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether a set of (x,y) points are within a polygon.</p>
+<p>INPUTS:
+xpt,ypt - define a set of points (arrays of length N)
+xpoly,ypoly - define the vertices of an arbitrary polygon (arrays of length M)</p>
+<p>OUTPUT:
+returns an array of Booleans, length N, True where (xpt,ypt) is inside the polygon</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.util.list2date">
+<code class="descclassname">physoce.util.</code><code class="descname">list2date</code><span class="sig-paren">(</span><em>datestr_list</em>, <em>fmt='%a %b %d %H:%M:%S %Y'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/util.html#list2date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.util.list2date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a list of date strings to datetime format.</p>
+<p>INPUT:
+datestr_list: a list of strings that represent dates
+fmt: format of the date string, as would be input to strftime() or strptime()</p>
+<p>see <a class="reference external" href="https://docs.python.org/library/datetime.html#strftime-and-strptime-behavior">https://docs.python.org/library/datetime.html#strftime-and-strptime-behavior</a></p>
+<p>OUTPUT:
+list of datetimes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.util.matlab2datetime64">
+<code class="descclassname">physoce.util.</code><code class="descname">matlab2datetime64</code><span class="sig-paren">(</span><em>datenum</em>, <em>unit='s'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/util.html#matlab2datetime64"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.util.matlab2datetime64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert Matlab serial date number to NumPy datetime64 format.</p>
+<p>INPUTS:
+datenum - Matlab serial date number, can be array
+unit - time unit of datetime64 output (default ‘s’)</p>
+<p>OUTPUT:
+array of datetime64 objects</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-physoce">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-physoce" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">physoce package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-physoce.graph">physoce.graph module</a></li>
+<li><a class="reference internal" href="#module-physoce.io">physoce.io module</a></li>
+<li><a class="reference internal" href="#module-physoce.oceans">physoce.oceans module</a></li>
+<li><a class="reference internal" href="#module-physoce.stats">physoce.stats module</a></li>
+<li><a class="reference internal" href="#module-physoce.tseries">physoce.tseries module</a></li>
+<li><a class="reference internal" href="#module-physoce.util">physoce.util module</a></li>
+<li><a class="reference internal" href="#module-physoce">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/physoce.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Tom Connolly.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/physoce.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
