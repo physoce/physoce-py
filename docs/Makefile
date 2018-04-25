@@ -6,7 +6,7 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SPHINXPROJ    = physoce
 SOURCEDIR     = source
-BUILDDIR      = build
+BUILDDIR      = ../../physoce-docs
 
 # Put it first so that "make" without argument is like "make help".
 help:
