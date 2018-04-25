@@ -1,0 +1,188 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>physoce.util &#8212; physoce  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for physoce.util</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">General purpose functions.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">path</span>
+
+<div class="viewcode-block" id="list2date"><a class="viewcode-back" href="../../physoce.html#physoce.util.list2date">[docs]</a><span class="k">def</span> <span class="nf">list2date</span><span class="p">(</span><span class="n">datestr_list</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;%a %b </span><span class="si">%d</span><span class="s1"> %H:%M:%S %Y&#39;</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Convert a list of date strings to datetime format.</span>
+
+<span class="sd">    INPUT:</span>
+<span class="sd">    datestr_list: a list of strings that represent dates</span>
+<span class="sd">    fmt: format of the date string, as would be input to strftime() or strptime()</span>
+
+<span class="sd">    see https://docs.python.org/library/datetime.html#strftime-and-strptime-behavior</span>
+
+<span class="sd">    OUTPUT:</span>
+<span class="sd">    list of datetimes</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">datetime_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">datestr</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span> <span class="k">for</span> <span class="n">datestr</span> <span class="ow">in</span> <span class="n">datestr_list</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">datetime_list</span></div>
+
+<div class="viewcode-block" id="matlab2datetime64"><a class="viewcode-back" href="../../physoce.html#physoce.util.matlab2datetime64">[docs]</a><span class="k">def</span> <span class="nf">matlab2datetime64</span><span class="p">(</span><span class="n">datenum</span><span class="p">,</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Convert Matlab serial date number to NumPy datetime64 format.</span>
+
+<span class="sd">    INPUTS:</span>
+<span class="sd">    datenum - Matlab serial date number, can be array</span>
+<span class="sd">    unit - time unit of datetime64 output (default &#39;s&#39;)</span>
+
+<span class="sd">    OUTPUT:</span>
+<span class="sd">    array of datetime64 objects</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">origin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;0000-01-01 00:00:00&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">)</span>
+    <span class="n">daylength</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;D&#39;</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">unit</span><span class="p">))</span>
+    <span class="n">dt64</span> <span class="o">=</span> <span class="n">datenum</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="n">daylength</span><span class="p">,</span> <span class="n">unit</span><span class="p">)</span> <span class="o">+</span> <span class="n">origin</span>
+    <span class="k">return</span> <span class="n">dt64</span></div>
+
+<div class="viewcode-block" id="haversine"><a class="viewcode-back" href="../../physoce.html#physoce.util.haversine">[docs]</a><span class="k">def</span> <span class="nf">haversine</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the great circle distances between a set of points</span>
+<span class="sd">    on the earth (specified in decimal degrees).</span>
+
+<span class="sd">    INPUTS:</span>
+<span class="sd">    lat,lon -  1D arrays of coordinate pairs (length N)</span>
+
+<span class="sd">    OUTPUT:</span>
+<span class="sd">    great circle distances between consecutive points in km (length N-1)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">lat1</span> <span class="o">=</span> <span class="n">lat</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">lon1</span> <span class="o">=</span> <span class="n">lon</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">lat2</span> <span class="o">=</span> <span class="n">lat</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">lon2</span> <span class="o">=</span> <span class="n">lon</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+    <span class="n">lat1</span><span class="p">,</span> <span class="n">lon1</span><span class="p">,</span> <span class="n">lat2</span><span class="p">,</span> <span class="n">lon2</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">,</span> <span class="p">[</span><span class="n">lat1</span><span class="p">,</span> <span class="n">lon1</span><span class="p">,</span> <span class="n">lat2</span><span class="p">,</span> <span class="n">lon2</span><span class="p">])</span>
+
+    <span class="n">dlon</span> <span class="o">=</span> <span class="n">lon2</span> <span class="o">-</span> <span class="n">lon1</span>
+    <span class="n">dlat</span> <span class="o">=</span> <span class="n">lat2</span> <span class="o">-</span> <span class="n">lat1</span>
+
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">dlat</span><span class="o">/</span><span class="mf">2.0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">dlon</span><span class="o">/</span><span class="mf">2.0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+
+    <span class="n">c</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+    <span class="n">km</span> <span class="o">=</span> <span class="mi">6371</span> <span class="o">*</span> <span class="n">c</span>
+    <span class="k">return</span> <span class="n">km</span></div>
+
+<div class="viewcode-block" id="compasstransform"><a class="viewcode-back" href="../../physoce.html#physoce.util.compasstransform">[docs]</a><span class="k">def</span> <span class="nf">compasstransform</span><span class="p">(</span><span class="n">theta</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Converts angles between compass direction (clockwise from true North) to direction in polar coordinates (counter-clockwise from x-axis, pointing East).</span>
+
+<span class="sd">    Note that regardless of which way the conversion is being done (compass -&gt; polar, or polar -&gt; compass), the output of this function will be the same for a given input.</span>
+
+<span class="sd">    INPUT:</span>
+<span class="sd">    - theta: direction (degrees), numpy array</span>
+
+<span class="sd">    OUTPUT:</span>
+<span class="sd">    - converted direction (degrees), numpy array of same size</span>
+<span class="sd">        (0 to 360 degrees)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">180.</span> <span class="c1"># convert to radians</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="o">-</span><span class="n">theta</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="o">-</span><span class="n">theta</span><span class="p">)</span>
+    <span class="n">theta_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">theta_out</span> <span class="o">=</span> <span class="n">theta_out</span><span class="o">*</span><span class="mi">180</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="c1"># convert back to degrees</span>
+    <span class="n">neg</span> <span class="o">=</span> <span class="n">theta_out</span> <span class="o">&lt;</span> <span class="mi">0</span>
+    <span class="n">theta_out</span><span class="p">[</span><span class="n">neg</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta_out</span><span class="p">[</span><span class="n">neg</span><span class="p">]</span><span class="o">+</span><span class="mi">360</span>
+    <span class="k">return</span> <span class="n">theta_out</span></div>
+
+<div class="viewcode-block" id="inside"><a class="viewcode-back" href="../../physoce.html#physoce.util.inside">[docs]</a><span class="k">def</span> <span class="nf">inside</span><span class="p">(</span><span class="n">xpt</span><span class="p">,</span><span class="n">ypt</span><span class="p">,</span><span class="n">xpoly</span><span class="p">,</span><span class="n">ypoly</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check whether a set of (x,y) points are within a polygon.</span>
+
+<span class="sd">    INPUTS:</span>
+<span class="sd">    xpt,ypt - define a set of points (arrays of length N)</span>
+<span class="sd">    xpoly,ypoly - define the vertices of an arbitrary polygon (arrays of length M)</span>
+
+<span class="sd">    OUTPUT:</span>
+<span class="sd">    returns an array of Booleans, length N, True where (xpt,ypt) is inside the polygon</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">mask_poly</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">xx</span><span class="p">,</span><span class="n">yy</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">xpoly</span><span class="p">,</span><span class="n">ypoly</span><span class="p">):</span>
+        <span class="n">mask_poly</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">mask_poly</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">xx</span><span class="p">,</span><span class="n">yy</span><span class="p">])))</span>
+    <span class="n">mask_poly</span> <span class="o">=</span> <span class="n">mask_poly</span><span class="p">[</span><span class="mi">1</span><span class="p">:,:]</span>
+    <span class="n">mask_path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">mask_poly</span><span class="p">)</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">xpt</span><span class="p">,</span><span class="n">ypt</span><span class="p">)))</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">mask_path</span><span class="o">.</span><span class="n">contains_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mask</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Tom Connolly.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
