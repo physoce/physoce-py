@@ -5,14 +5,13 @@
 
 physoce-py
 ==========
-A collection of Python tools for physical oceanography. Includes functions for plotting, time series analysis, statistics and surface wave dynamics. 
+A collection of Python tools for physical oceanography.
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
     install
-    usage
 
 Indices and tables
 ==================
