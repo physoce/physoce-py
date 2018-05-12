@@ -10,9 +10,9 @@ A collection of Python tools for physical oceanography. Includes functions for p
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
-    install
-    usage
+   
+   install
+   usage
 
 Indices and tables
 ==================

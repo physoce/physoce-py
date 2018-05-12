@@ -7,21 +7,28 @@ To install the package for the first time, first create an empty directory where
 
 Run the following in the terminal/command prompt to initialize an empty git repository:
 
-    git init .
+.. code-block:: none
+
+   git init .
 
 **Add remote url**
 
-    git remote add origin https://github.com/physoce/physoce-py.git
+.. code-block:: none
+
+   git remote add origin https://github.com/physoce/physoce-py.git
 
 **Get code and install**
 
-    git pull origin master
-    python setup.py install
+.. code-block:: none
 
-Updating
-========
+   git pull origin master
+   python setup.py install
 
-After the initial installation, you can update to the latest version on Gitlab by changing to the directory where the code is located running the following in the terminal/command prompt:
+**Updating**
 
-    git pull origin master
-    python setup.py install
+After the initial installation, you can update to the latest version on Github by changing to the directory where the code is located running the following in the terminal/command prompt:
+
+.. code-block:: none
+
+   git pull origin master
+   python setup.py install
