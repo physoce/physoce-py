@@ -77,12 +77,12 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">Installation</a></li>
-<li><a class="reference internal" href="#updating">Updating</a></li>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Importing modules</a></li>
 </ul>
-</div>
+
             
           
         </div>
@@ -150,22 +150,24 @@
 <p><strong>Initialize git repository</strong></p>
 <p>To install the package for the first time, first create an empty directory where you plan to store the code, then change into that directory.</p>
 <p>Run the following in the terminal/command prompt to initialize an empty git repository:</p>
-<blockquote>
-<div>git init .</div></blockquote>
-<p><strong>Add remote url</strong></p>
-<blockquote>
-<div>git remote add origin <a class="reference external" href="https://github.com/physoce/physoce-py.git">https://github.com/physoce/physoce-py.git</a></div></blockquote>
-<p><strong>Get code and install</strong></p>
-<blockquote>
-<div>git pull origin master
-python setup.py install</div></blockquote>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>git init .
+</pre></div>
 </div>
-<div class="section" id="updating">
-<h1>Updating<a class="headerlink" href="#updating" title="Permalink to this headline">¶</a></h1>
-<p>After the initial installation, you can update to the latest version on Gitlab by changing to the directory where the code is located running the following in the terminal/command prompt:</p>
-<blockquote>
-<div>git pull origin master
-python setup.py install</div></blockquote>
+<p><strong>Add remote url</strong></p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>git remote add origin https://github.com/physoce/physoce-py.git
+</pre></div>
+</div>
+<p><strong>Get code and install</strong></p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>git pull origin master
+python setup.py install
+</pre></div>
+</div>
+<p><strong>Updating</strong></p>
+<p>After the initial installation, you can update to the latest version on Github by changing to the directory where the code is located running the following in the terminal/command prompt:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>git pull origin master
+python setup.py install
+</pre></div>
+</div>
 </div>
 
 
