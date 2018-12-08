@@ -149,22 +149,26 @@
             
   <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p><strong>Initialize git repository</strong></p>
+<p><strong>Method 1: Install using pip</strong></p>
+<p>To install using pip, run the following in the terminal/command prompt:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pip install git+https://github.com/physoce/physoce-py
+</pre></div>
+</div>
+<p><strong>Method 2: Install using git</strong></p>
 <p>To install the package for the first time, first create an empty directory where you plan to store the code, then change into that directory.</p>
 <p>Run the following in the terminal/command prompt to initialize an empty git repository:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>git init .
 </pre></div>
 </div>
-<p><strong>Add remote url</strong></p>
+<p>Add the remote Github url.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>git remote add origin https://github.com/physoce/physoce-py.git
 </pre></div>
 </div>
-<p><strong>Get code and install</strong></p>
+<p>Get code and install.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>git pull origin master
 python setup.py install
 </pre></div>
 </div>
-<p><strong>Updating</strong></p>
 <p>After the initial installation, you can update to the latest version on Github by changing to the directory where the code is located running the following in the terminal/command prompt:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>git pull origin master
 python setup.py install
