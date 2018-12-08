@@ -4,4 +4,8 @@ Python tools for physical oceanography. Includes functions for plotting, time se
 
 Documentation can be found at https://physoce.github.io/physoce-py
 
+To install using pip:
+
+`pip install git+https://github.com/physoce/physoce-py`
+
 Feedback and ideas for future work are welcome. Please feel free to submit an issue.
