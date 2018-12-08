@@ -1,6 +1,6 @@
 # physoce
 
-Python tools for physical oceanography. Includes functions for plotting, time series analysis, statistics and surface wave dynamics. 
+Python tools for physical oceanography. Includes functions for plotting, time series analysis, statistics and surface wave dynamics.
 
 Documentation can be found at https://physoce.github.io/physoce-py
 
