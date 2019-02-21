@@ -74,6 +74,36 @@ Matlab code: http://woodshole.er.usgs.gov/operations/sea-mat/bobstuff-html/pl66t
     
     xf = _filt(x,wts)
     return xf
+
+def pl64(x,dt=1,T=33):
+    """
+Filter a time series x with the PL64 filter. If x is 2D, the time series will be filtered along columns.
+    
+Inputs:
+x - a numpy array to be filtered. 
+dt - sample interval (hours), default = 1
+T - half-amplitude period (hours), default = 33
+    
+Output: numpy array of filtered time series, same size as input with ends NaN values at start and end.    
+    
+Reference: CODE-2: Moored Array and Large-Scale Data Report, WHOI 85-35
+    """
+    
+    Tn=float(T)/dt # normalized cutoff period
+    fqn=1./Tn # normalized cutoff frequency
+    nw = int(np.round(64/dt)) # number of weights on one side
+    
+    # create filter weights
+    j = np.arange(1,nw)
+    tn = np.pi*j
+    den=fqn*fqn*tn**3
+    wts = (2*np.sin(2*fqn*tn)-np.sin(fqn*tn)-np.sin(3*fqn*tn))/den 
+    
+    # make symmetric
+    wts = np.hstack((wts[::-1],2*fqn,wts))
+    
+    xf = _filt(x,wts)
+    return xf
     
 def _filt(x,wts):
     """
