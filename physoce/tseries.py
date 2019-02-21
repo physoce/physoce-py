@@ -122,9 +122,17 @@ Output: the filtered time series
     if ndims == 1:
         x = np.expand_dims(x,axis=1)
     
-    # normalize weights and convolve
+    # normalize weights
     wtsn = wts*sum(wts)**-1 # normalize weights so sum = 1
-    xf = signal.convolve(x,wtsn[:,np.newaxis],mode='same',method='direct')  
+    
+    # Convolve using 'direct' method. In older versions of scipy, this has to
+    # be specified because the default 'auto' method could decide to use the 
+    # 'fft' method, which does not work for time series with NaNs. In newer 
+    # versions, there is no method option.
+    try:
+        xf = signal.convolve(x,wtsn[:,np.newaxis],mode='same',method='direct')  
+    except:
+        xf = signal.convolve(x,wtsn[:,np.newaxis],mode='same') 
     
     # note: np.convolve may be faster 
     # http://scipy.github.io/old-wiki/pages/Cookbook/ApplyFIRFilter
