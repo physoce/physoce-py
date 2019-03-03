@@ -271,6 +271,7 @@ bottom:  boundary condition for bottom
     sorti = np.argsort(z)
     zs = z[sorti]
     zs2 = np.tile(zs,[ni,1])
+    xs2 = x[:,sorti] # sort data in same manner as depths
     
     # water depth in 2D column array
     h2 = np.tile(h,[ni,1])
@@ -278,18 +279,18 @@ bottom:  boundary condition for bottom
     # new 2D x and z arrays to work with, with bottom and surface included
     zmat = np.hstack([-h2,zs2,ssh2])
     nans2 = np.nan*np.ones([ni,1])
-    xmat = np.hstack([nans2,x,nans2])
+    xmat = np.hstack([nans2,xs2,nans2])
     
     # only do calculations for rows where finite data exist    
     fini = np.isfinite(xmat)
     ii, = np.where(np.sum(fini,axis=1) > 0)
 
     # bottom calculation
-    if bottom is 'zero':
+    if bottom == 'zero':
         xmat[ii,0] = 0.
-    elif bottom is 'mixed':
+    elif bottom == 'mixed':
         xmat[:,0] = xmat[:,1]
-    elif bottom is 'extrap':
+    elif bottom == 'extrap':
         xmat[:,0] = (xmat[:,2]-xmat[:,1])*(zmat[:,0]-zmat[:,1]) \
                     /(zmat[:,2]-zmat[:,1]) \
                     + xmat[:,1]
@@ -428,3 +429,32 @@ if __name__ == '__main__':
         print('rot test: passed')
     else:
         raise ValueError('rot test: failed')
+        
+    # test case #1 - depth avg
+    u1= np.array([        np.nan,         np.nan,         np.nan,         np.nan,         np.nan,
+               np.nan,         np.nan,         np.nan, -0.0018506 ,  0.00057345,
+       -0.00027954,  0.00304925,  0.0056888 ,  0.01057738, -0.00096978,
+        0.00614675,  0.00302453, -0.00028928,  0.00077288, -0.00768713,
+       -0.01823976,  0.00612571, -0.00397687, -0.00580832, -0.00833382,
+        0.0017868 , -0.00530538, -0.01031236])
+    u2 = np.array([        np.nan,         np.nan,         np.nan,         np.nan,         np.nan,
+               np.nan,         np.nan,         np.nan,  0.00150274,  0.00745662,
+        0.00235997, -0.00074239, -0.00298656,  0.00302234,  0.00318832,
+       -0.00169822, -0.00439177, -0.00226204, -0.00400032, -0.01001337,
+       -0.00913997, -0.00681736, -0.01331132, -0.00100251, -0.01532928,
+       -0.01763108, -0.01194093, -0.01909814])
+    u = np.vstack([u1,u2])
+    z = np.array([ 1.49,  1.24,  0.99,  0.74,  0.49,  0.24, -0.01, -0.26, -0.51,
+       -0.76, -1.01, -1.26, -1.51, -1.76, -2.01, -2.26, -2.51, -2.76,
+       -3.01, -3.26, -3.51, -3.76, -4.01, -4.26, -4.51, -4.76, -5.01, -5.26])
+    ubar = depthavg(u,z,7)
+    
+    ub = np.fliplr(u)
+    zb = np.flip(z)
+    ubarb = depthavg(ub,zb,7)
+    
+    test = (ubar == ubarb)
+    if test.all():
+        print('depthavg test #1: passed')
+    else:
+        raise ValueError('depthavg test #1: failed')
