@@ -229,6 +229,71 @@ rot(1,0,90) returns (0,1)
     vr = np.imag(wr)
     return ur,vr
 
+def fillgapwithnan(x,date):
+    """
+Fill in missing data with NaN values. This is intended for a regular time series that has gaps where no data are reported. 
+    
+Although this function is intended for regularly-sampled time series (with gaps), it does allow for some slight irregularity (e.g. 13:00,14:00,15:00,15:59,16:59...)
+    
+Inputs:
+x - a numpy array of data (1 or 2 dimensions)
+date - datetime values that correspond to x
+
+Returns:
+(newx,newdate)
+newx - new array of data
+newdate = new datetime values
+    """
+          
+    xnd = np.ndim(x) # remember original number of dims in x  
+    x = np.array(x,ndmin=2) # make array 2D for general use
+    
+    # ensure that x is oriented correctly and has one dimension with same length as date
+    flipdim = False    
+    if np.shape(x)[0] != np.shape(date)[0]:
+        x = x.transpose()
+        flipdim = True
+        if np.shape(x)[0] != np.shape(date)[0]: 
+            raise Exception('one dimension of x must have same length as date')
+    
+    # find most common timedelta
+    alldeltat = np.diff(date)
+    # stats.mode returns (value, number of occurences) in arrays
+    deltat = stats.mode(alldeltat)[0][0] 
+    
+    gapi = np.where(alldeltat > deltat*3/2)[0]    
+    
+    # build new arrays
+    newdate = date[0:gapi[0]+1]
+    newx = np.array(x[0:gapi[0]+1,:],ndmin=2)
+    cnt = 0 # counter for looping through the gaps
+    for ii in gapi:
+        tdiff = date[ii+1]-date[ii] # size of gap
+        # number of new values needed to fill gap
+        nstep = int(round((tdiff.total_seconds()/deltat.total_seconds())))-1 
+        for step in np.arange(nstep):
+            t = newdate[-1]+deltat
+            newdate = np.append(newdate,t)
+        gapnans = np.nan*np.ones((nstep,np.shape(x)[1]))
+        newx = np.vstack((newx,gapnans))
+        if ii!=gapi[-1]:
+            i1 = ii+1
+            i2 = gapi[cnt+1]
+            newdate = np.append(newdate,date[i1:i2+1])
+            newx = np.vstack((newx,x[i1:i2+1,:]))
+        else:
+            newdate = np.append(newdate,date[ii+1:])
+            newx = np.vstack((newx,x[ii+1:,:]))
+        cnt=cnt+1
+
+    if flipdim:
+        newx = newx.transpose()        
+        
+    if xnd == 1:
+        newx = newx.flatten() # reduce back to 1D array if necessary
+
+    return (newx,newdate)
+    
 def depthavg(x,z,h,ssh=None,surface='mixed',bottom='zero'):
     ''' 
 Compute depth average of each row in 2D array x, with corresponding depths z. 
@@ -336,71 +401,285 @@ bottom:  boundary condition for bottom
 
     return xda
     
-def fillgapwithnan(x,date):
-    """
-Fill in missing data with NaN values. This is intended for a regular time series that has gaps where no data are reported. 
-    
-Although this function is intended for regularly-sampled time series (with gaps), it does allow for some slight irregularity (e.g. 13:00,14:00,15:00,15:59,16:59...)
-    
-Inputs:
-x - a numpy array of data (1 or 2 dimensions)
-date - datetime values that correspond to x
+def surface_transport(u,z,ssh=None,surface='mixed'):
+    ''' 
+Compute surface transport Us from velocity component u, with corresponding depths z. 
 
-Returns:
-(newx,newdate)
-newx - new array of data
-newdate = new datetime values
-    """
-          
-    xnd = np.ndim(x) # remember original number of dims in x  
-    x = np.array(x,ndmin=2) # make array 2D for general use
-    
-    # ensure that x is oriented correctly and has one dimension with same length as date
-    flipdim = False    
-    if np.shape(x)[0] != np.shape(date)[0]:
-        x = x.transpose()
-        flipdim = True
-        if np.shape(x)[0] != np.shape(date)[0]: 
-            raise Exception('one dimension of x must have same length as date')
-    
-    # find most common timedelta
-    alldeltat = np.diff(date)
-    # stats.mode returns (value, number of occurences) in arrays
-    deltat = stats.mode(alldeltat)[0][0] 
-    
-    gapi = np.where(alldeltat > deltat*3/2)[0]    
-    
-    # build new arrays
-    newdate = date[0:gapi[0]+1]
-    newx = np.array(x[0:gapi[0]+1,:],ndmin=2)
-    cnt = 0 # counter for looping through the gaps
-    for ii in gapi:
-        tdiff = date[ii+1]-date[ii] # size of gap
-        # number of new values needed to fill gap
-        nstep = int(round((tdiff.total_seconds()/deltat.total_seconds())))-1 
-        for step in np.arange(nstep):
-            t = newdate[-1]+deltat
-            newdate = np.append(newdate,t)
-        gapnans = np.nan*np.ones((nstep,np.shape(x)[1]))
-        newx = np.vstack((newx,gapnans))
-        if ii!=gapi[-1]:
-            i1 = ii+1
-            i2 = gapi[cnt+1]
-            newdate = np.append(newdate,date[i1:i2+1])
-            newx = np.vstack((newx,x[i1:i2+1,:]))
-        else:
-            newdate = np.append(newdate,date[ii+1:])
-            newx = np.vstack((newx,x[ii+1:,:]))
-        cnt=cnt+1
+Integration is performed from the sea surface to the first zero crossing in the u profile.
 
-    if flipdim:
-        newx = newx.transpose()        
+If u has units of m/s, Us will have units of m^2/s.
+
+Designed to accomodate upward looking ADCP data, with moving sea surface and 
+blank bins with no data near surface. If no sea surface height is specified, 
+it is assumed to be at z=0 for all times.
+
+INPUT:
+x: variable to be depth-averaged, 2D array with shape N rows, M columns
+z: measurement depths (z=0 is surface, negative below surface), array of length M
+ssh: sea surface height (optional, set to zero if None or where value is undefined)
+surface: boundary condition for surface
+        'mixed' (default) or 'extrap'
         
-    if xnd == 1:
-        newx = newx.flatten() # reduce back to 1D array if necessary
-
-    return (newx,newdate)
+OUTPUT:
+Us - transport integrated from surface to first zero crossing of velocity profiled
+zs - depth of first zero crossing
+    '''
     
+    # ensure that inputs are arrays of floats
+    x = np.array(u).astype('float')
+    z = np.array(z).astype('float')
+    
+    if np.ndim(x) == 1:
+        x = x[np.newaxis]
+
+    ni,nj = np.shape(x)
+    
+    # If SSH not specified, create an array of zeros
+    if ssh is None:
+        ssh = np.zeros(ni)
+        
+    ssh = np.array(ssh)
+    if np.ndim(ssh) == 0:
+        ssh = ssh[np.newaxis]
+    
+    # ssh in 2D column array
+    ssh2 = np.array([ssh]).T
+    
+    # depths in 2D array
+    sorti = np.argsort(z)
+    zsort = z[sorti]
+    zs2 = np.tile(zsort,[ni,1])
+    xs2 = x[:,sorti] # sort data in same manner as depths
+    
+    # make sure that there is at least one zero crossing 
+    # just below the deepest level
+    eps = np.finfo(float).eps
+    zend = zs2[:,0] - np.sqrt(eps)
+    xend = -np.sign(xs2[:,0])*np.sqrt(eps)
+    
+    zend = zend[:,np.newaxis]
+    xend = xend[:,np.newaxis]
+    
+    # new 2D x and z arrays to work with, with bottom and surface included
+    zmat = np.hstack([zend,zs2,ssh2])
+    nans2 = np.nan*np.ones([ni,1])
+    xmat = np.hstack([xend,xs2,nans2])
+    
+    # only do calculations for rows where finite data exist    
+    fini = np.isfinite(xmat)
+    ii, = np.where(np.sum(fini,axis=1) > 0)
+
+    # find where depths are higher than sea surface or where there is no data,
+    # mask with NaN Values
+    xmatz = np.copy(xmat)
+    xmatz[ii,-1] = 0.
+    msk = (zmat > ssh2) | np.isnan(xmatz)
+    zmatnan = np.copy(zmat)
+    if np.any(msk):
+        zmatnan[msk] = np.nan
+    
+    # sort each row of arrays by depth
+    sj = np.argsort(zmatnan)
+    si = np.arange(np.shape(zmat)[0])[:,np.newaxis]
+    zmats = zmatnan[si,sj]
+    xmats = xmat[si,sj]
+    
+    # column index of surface in each row where data exists
+    jj = (np.sum(np.isfinite(zmats),axis=1)-1)[ii]
+    
+    # calculate surface value
+    if surface == 'mixed':
+        xmats[ii,jj] = xmats[ii,jj-1]
+    elif surface == 'extrap':
+        xmats[ii,jj] = (xmats[ii,jj-1]-xmats[ii,jj-2])*(zmats[ii,jj]-zmats[ii,jj-2]) \
+                     /(zmats[ii,jj-1]-zmats[ii,jj-2]) \
+                     + xmats[ii,jj-2]
+    else:
+        raise ValueError('surface_transport: surface condition not understood (should be \'mixed\' or \'extrap\')')
+    
+    # Flip 2D array so that surface is first column
+    xmatr = np.fliplr(xmats)
+    zmatr = np.fliplr(zmats)
+    
+    # Find index just above first zero crossing
+    zj = np.argmax(np.sign(xmatr[:,:-1]*xmatr[:,1:]) == -1,axis=1)
+    
+    # Compute depth of first zero crossing using linear interpolation
+    i = range(ni)
+    zs = zmatr[i,zj] - xmatr[i,zj]*(zmatr[i,zj]-zmatr[i,zj+1])/(xmatr[i,zj]-xmatr[i,zj+1])
+    
+    # create rectangular array, where columns are integers starting from zero
+    jmat = np.arange(np.shape(xmatr)[1])*np.ones(np.shape(xmatr)[0])[:,np.newaxis]
+    
+    # use to create mask of depths between surface and zero crossing
+    mask = np.less_equal(jmat,zj[:,np.newaxis])
+    
+    # Replace data below first zero crossing with zeros
+    xmatr = mask*xmatr
+    
+    # Use depth of first zero crossing for zero velocity closest to surface
+    zmatr[i,zj+1] = zs
+    
+    # integrate vertically using trapezoidal rule
+    xm = 0.5*(xmatr[:,:-1]+xmatr[:,1:])
+    dz = -np.diff(zmatr,axis=1) # negative because depths are decreasing
+    Us = np.nansum(xm*dz,axis=1) 
+    
+    badi, = np.where(np.isnan(np.nanmax(xm,axis=1)))
+    Us[badi] = np.nan
+    zs[badi] = np.nan
+
+    return Us,zs
+
+def surface_flux(u,z,tr,ssh=None,surface='mixed'):
+    ''' 
+Compute integrated surface-layer flux of a tracer tr, due to velocity component u with corresponding depths z. 
+
+Integration is performed from the sea surface to the first zero crossing in the u profile.
+
+If u has units of m/s, and tr has units of C, result will have units of (C m^2)/s
+
+Designed to accomodate upward looking ADCP data, with moving sea surface and 
+blank bins with no data near surface. If no sea surface height is specified, 
+it is assumed to be at z=0 for all times.
+
+INPUT:
+u: velocity, 2D array with shape N rows, M columns
+z: measurement depths (z=0 is surface, negative below surface), array of length M
+tr: tracer values (N rows, M columns corresponding to depths z)
+ssh: sea surface height (optional, set to zero if None or where value is undefined)
+surface: boundary condition for surface
+        'mixed' (default) or 'extrap'
+        
+OUTPUT:
+trflux - tracer flux integrated from surface to first zero crossing of velocity profile
+tr0 - tracer value at first zero crossing of velocity profile
+    '''
+    
+    # ensure that inputs are arrays of floats
+    x = np.array(u).astype('float')
+    z = np.array(z).astype('float')
+    tr = np.array(tr).astype('float')
+    
+    if np.ndim(x) == 1:
+        x = x[np.newaxis]
+        tr = tr[np.newaxis]
+
+    ni,nj = np.shape(x)
+    
+    # If SSH not specified, create an array of zeros
+    if ssh is None:
+        ssh = np.zeros(ni)
+        
+    ssh = np.array(ssh)
+    if np.ndim(ssh) == 0:
+        ssh = ssh[np.newaxis]
+    
+    # ssh in 2D column array
+    ssh2 = np.array([ssh]).T
+    
+    # depths in 2D array
+    sorti = np.argsort(z)
+    zsort = z[sorti] # sort depths
+    zs2 = np.tile(zsort,[ni,1])
+    xs2 = x[:,sorti] # sort data in same manner as depths
+    trs2 = tr[:,sorti] # sort data in same manner as depths
+    
+    # make sure that there is at least one zero crossing 
+    # just below the deepest level
+    eps = np.finfo(float).eps
+    zend = zs2[:,0] - np.sqrt(eps)
+    xend = -np.sign(xs2[:,0])*np.sqrt(eps)
+    trend = trs2[:,0]
+    
+    zend = zend[:,np.newaxis]
+    xend = xend[:,np.newaxis]
+    trend = trend[:,np.newaxis]
+    
+    # new 2D x and z arrays to work with, with bottom and surface included
+    zmat = np.hstack([zend,zs2,ssh2])
+    nans2 = np.nan*np.ones([ni,1])
+    xmat = np.hstack([xend,xs2,nans2])
+    trmat = np.hstack([trend,trs2,nans2])
+    
+    # only do calculations for rows where finite data exist    
+    fini = np.isfinite(xmat)
+    ii, = np.where(np.sum(fini,axis=1) > 0)
+
+    # find where depths are higher than sea surface or where there is no data,
+    # mask with NaN Values
+    xmatz = np.copy(xmat)
+    xmatz[ii,-1] = 0.
+    msk = (zmat > ssh2) | np.isnan(xmatz)
+    zmatnan = np.copy(zmat)
+    if np.any(msk):
+        zmatnan[msk] = np.nan
+    
+    # sort each row of arrays by depth
+    sj = np.argsort(zmatnan)
+    si = np.arange(np.shape(zmat)[0])[:,np.newaxis]
+    zmats = zmatnan[si,sj]
+    xmats = xmat[si,sj]
+    trmats = trmat[si,sj]
+    
+    # column index of surface in each row where data exists
+    jj = (np.sum(np.isfinite(zmats),axis=1)-1)[ii]
+    
+    # calculate surface value
+    if surface == 'mixed':
+        xmats[ii,jj] = xmats[ii,jj-1]
+        trmats[ii,jj] = trmats[ii,jj-1]
+    elif surface == 'extrap':
+        xmats[ii,jj] = (xmats[ii,jj-1]-xmats[ii,jj-2])*(zmats[ii,jj]-zmats[ii,jj-2]) \
+                     /(zmats[ii,jj-1]-zmats[ii,jj-2]) \
+                     + xmats[ii,jj-2]
+        trmats[ii,jj] = (trmats[ii,jj-1]-trmats[ii,jj-2])*(zmats[ii,jj]-zmats[ii,jj-2]) \
+                     /(zmats[ii,jj-1]-zmats[ii,jj-2]) \
+                     + trmats[ii,jj-2]
+    else:
+        raise ValueError('surface_transport: surface condition not understood (should be \'mixed\' or \'extrap\')')
+    
+    # Flip 2D array so that surface is first column
+    xmatr = np.fliplr(xmats)
+    zmatr = np.fliplr(zmats)
+    trmatr = np.fliplr(trmats)
+    
+    # Find index just above first zero crossing
+    zj = np.argmax(np.sign(xmatr[:,:-1]*xmatr[:,1:]) == -1,axis=1)
+    
+    # Compute depth of first zero crossing using linear interpolation
+    i = range(ni)
+    zs = zmatr[i,zj] - xmatr[i,zj]*(zmatr[i,zj]-zmatr[i,zj+1])/(xmatr[i,zj]-xmatr[i,zj+1])
+    
+    # Compute tracer value at first zero crossing using linear interpolation
+    trs = trmatr[i,zj] - xmatr[i,zj]*(trmatr[i,zj]-trmatr[i,zj+1])/(xmatr[i,zj]-xmatr[i,zj+1])    
+    
+    # create rectangular array, where columns are integers starting from zero
+    jmat = np.arange(np.shape(xmatr)[1])*np.ones(np.shape(xmatr)[0])[:,np.newaxis]
+    
+    # use to create mask of depths between surface and zero crossing
+    mask = np.less_equal(jmat,zj[:,np.newaxis])
+    
+    # Replace data below first zero crossing with zeros
+    xmatr = mask*xmatr
+    trmatr = mask*trmatr
+    
+    # Use depth of first zero crossing for zero velocity closest to surface
+    zmatr[i,zj+1] = zs
+    trmatr[i,zj+1] = trs
+    
+    # integrate vertically using trapezoidal rule
+    xm = 0.5*(xmatr[:,:-1]+xmatr[:,1:])
+    trm = 0.5*(trmatr[:,:-1]+trmatr[:,1:])
+    dz = -np.diff(zmatr,axis=1) # negative because depths are decreasing
+    trflux = np.nansum(xm*trm*dz,axis=1) 
+    
+    badi, = np.where(np.isnan(np.nanmax(xm,axis=1)))
+    trflux[badi] = np.nan
+    zs[badi] = np.nan
+
+    return trflux, trs
+
 if __name__ == '__main__':
     
     # Test princax function
@@ -449,8 +728,8 @@ if __name__ == '__main__':
        -3.01, -3.26, -3.51, -3.76, -4.01, -4.26, -4.51, -4.76, -5.01, -5.26])
     ubar = depthavg(u,z,7)
     
-    ub = np.fliplr(u)
-    zb = np.flip(z)
+    ub = u[:,::-1]
+    zb = z[::-1]
     ubarb = depthavg(ub,zb,7)
     
     test = (ubar == ubarb)
@@ -458,3 +737,74 @@ if __name__ == '__main__':
         print('depthavg test #1: passed')
     else:
         raise ValueError('depthavg test #1: failed')
+                         
+    # surface transport test case #1
+    u1= np.array([        np.nan,         np.nan,         np.nan,         np.nan,         np.nan,
+               np.nan,         np.nan,         np.nan, -0.0018506 ,  0.00057345,
+       -0.00027954,  0.00304925,  0.0056888 ,  0.01057738, -0.00096978,
+        0.00614675,  0.00302453, -0.00028928,  0.00077288, -0.00768713,
+       -0.01823976,  0.00612571, -0.00397687, -0.00580832, -0.00833382,
+        0.0017868 , -0.00530538, -0.01031236])
+    u2 = np.array([        np.nan,         np.nan,         np.nan,         np.nan,         np.nan,
+               np.nan,         np.nan,         np.nan,  0.00150274,  0.00745662,
+        0.00235997, -0.00074239, -0.00298656,  0.00302234,  0.00318832,
+       -0.00169822, -0.00439177, -0.00226204, -0.00400032, -0.01001337,
+       -0.00913997, -0.00681736, -0.01331132, -0.00100251, -0.01532928,
+       -0.01763108, -0.01194093, -0.01909814])
+    u = np.vstack([u1,u2])
+    z = np.array([ 1.49,  1.24,  0.99,  0.74,  0.49,  0.24, -0.01, -0.26, -0.51,
+       -0.76, -1.01, -1.26, -1.51, -1.76, -2.01, -2.26, -2.51, -2.76,
+       -3.01, -3.26, -3.51, -3.76, -4.01, -4.26, -4.51, -4.76, -5.01, -5.26])
+    Us,zs = surface_transport(u,z)
+    
+    test = np.array([np.isfinite(Us).all(),np.isfinite(zs).all()])
+    if test.all():
+        print('surface transport test #1: passed')
+    else:
+        raise ValueError('depthavg test #1: failed')
+    
+    # surface transport/flux test case #2
+    u = np.array([[-1, -1, -1,  1,  1,  1],
+                  [ 1,  2, -1,  4, -1, -2]])
+    
+    z = np.array([-6, -5, -4, -3, -2, -1])
+    
+    tr = np.array([[1, 1, -1,  -1,  -1,  -1],
+                  [ 1,  1, 1,  1, 1, 1]])
+    
+    Us2,zs2 = surface_transport(u,z)
+    trflux2,trs2 = surface_flux(u,z,tr)
+    
+    test = np.array([np.isfinite(Us2).all(),np.isfinite(zs2).all(),
+                     np.isfinite(trflux2).all(),np.isfinite(trs2).all(),
+                     zs2[0]>-4,zs2[0]<-3,zs2[1]>-3,zs2[1]<-2,
+                     trflux2[0]==-Us2[0],trflux2[1]==Us2[1]])
+    if test.all():
+        print('surface transport/flux test #2: passed')
+    else:
+        raise ValueError('depthavg test #2: failed')
+    
+    # surface transport/flux test case #3 (no zero crossing)
+    z3 = np.array([-2. , -2.5, -3. , -3.5, -4. , -4.5, -5. , -5.5, -6. , -6.5, -7. ,
+       -7.5, -8. , -8.5, -9. , -9.5])
+    u3 = np.array(
+        [ 4.21860615e-04,  2.31305385e-03,  1.31356857e-03,
+         1.94045833e-03,  2.89933335e-04,  2.86449031e-03,
+         1.97513672e-03,  6.18211638e-03,  3.36873352e-03,
+         5.39932390e-03,  5.50479300e-03,  4.40279194e-03,
+         5.36942569e-03,  6.60713067e-03,  5.74801833e-03,
+         3.50485563e-03])
+    tr3 = np.array(
+       [-0.08513565, -0.08006332, -0.0802531 , -0.07925762, -0.07745643,
+        -0.07925762, -0.07736153, -0.07698196, -0.07726664, -0.07608137,
+        -0.07608137, -0.07418528, -0.0730949 , -0.07499098, -0.07608137,
+        -0.07328469])
+       
+    Us3,zs3 = surface_transport(u3,z3)
+    trflux3,trs3 = surface_flux(u3,z3,tr3)
+    
+    test = np.array([np.isfinite(Us3),np.isfinite(zs3),np.isfinite(trflux3),np.isfinite(trs3)])
+    if test.all():
+        print('surface transport/flux test #3: passed')
+    else:
+        raise ValueError('depthavg test #3: failed')
