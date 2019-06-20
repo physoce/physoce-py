@@ -220,6 +220,36 @@
     
     <span class="n">xf</span> <span class="o">=</span> <span class="n">_filt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">wts</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">xf</span></div>
+
+<div class="viewcode-block" id="pl64"><a class="viewcode-back" href="../../physoce.html#physoce.tseries.pl64">[docs]</a><span class="k">def</span> <span class="nf">pl64</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">dt</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">T</span><span class="o">=</span><span class="mi">33</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Filter a time series x with the PL64 filter. If x is 2D, the time series will be filtered along columns.</span>
+<span class="sd">    </span>
+<span class="sd">Inputs:</span>
+<span class="sd">x - a numpy array to be filtered. </span>
+<span class="sd">dt - sample interval (hours), default = 1</span>
+<span class="sd">T - half-amplitude period (hours), default = 33</span>
+<span class="sd">    </span>
+<span class="sd">Output: numpy array of filtered time series, same size as input with ends NaN values at start and end.    </span>
+<span class="sd">    </span>
+<span class="sd">Reference: CODE-2: Moored Array and Large-Scale Data Report, WHOI 85-35</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">Tn</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">T</span><span class="p">)</span><span class="o">/</span><span class="n">dt</span> <span class="c1"># normalized cutoff period</span>
+    <span class="n">fqn</span><span class="o">=</span><span class="mf">1.</span><span class="o">/</span><span class="n">Tn</span> <span class="c1"># normalized cutoff frequency</span>
+    <span class="n">nw</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">64</span><span class="o">/</span><span class="n">dt</span><span class="p">))</span> <span class="c1"># number of weights on one side</span>
+    
+    <span class="c1"># create filter weights</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">nw</span><span class="p">)</span>
+    <span class="n">tn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">j</span>
+    <span class="n">den</span><span class="o">=</span><span class="n">fqn</span><span class="o">*</span><span class="n">fqn</span><span class="o">*</span><span class="n">tn</span><span class="o">**</span><span class="mi">3</span>
+    <span class="n">wts</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">fqn</span><span class="o">*</span><span class="n">tn</span><span class="p">)</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">fqn</span><span class="o">*</span><span class="n">tn</span><span class="p">)</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">fqn</span><span class="o">*</span><span class="n">tn</span><span class="p">))</span><span class="o">/</span><span class="n">den</span> 
+    
+    <span class="c1"># make symmetric</span>
+    <span class="n">wts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">wts</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="mi">2</span><span class="o">*</span><span class="n">fqn</span><span class="p">,</span><span class="n">wts</span><span class="p">))</span>
+    
+    <span class="n">xf</span> <span class="o">=</span> <span class="n">_filt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">wts</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">xf</span></div>
     
 <span class="k">def</span> <span class="nf">_filt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">wts</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -238,9 +268,17 @@
     <span class="k">if</span> <span class="n">ndims</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     
-    <span class="c1"># normalize weights and convolve</span>
+    <span class="c1"># normalize weights</span>
     <span class="n">wtsn</span> <span class="o">=</span> <span class="n">wts</span><span class="o">*</span><span class="nb">sum</span><span class="p">(</span><span class="n">wts</span><span class="p">)</span><span class="o">**-</span><span class="mi">1</span> <span class="c1"># normalize weights so sum = 1</span>
-    <span class="n">xf</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">wtsn</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;direct&#39;</span><span class="p">)</span>  
+    
+    <span class="c1"># Convolve using &#39;direct&#39; method. In older versions of scipy, this has to</span>
+    <span class="c1"># be specified because the default &#39;auto&#39; method could decide to use the </span>
+    <span class="c1"># &#39;fft&#39; method, which does not work for time series with NaNs. In newer </span>
+    <span class="c1"># versions, there is no method option.</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">xf</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">wtsn</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;direct&#39;</span><span class="p">)</span>  
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">xf</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">wtsn</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">)</span> 
     
     <span class="c1"># note: np.convolve may be faster </span>
     <span class="c1"># http://scipy.github.io/old-wiki/pages/Cookbook/ApplyFIRFilter</span>
@@ -337,112 +375,6 @@
     <span class="n">vr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">wr</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ur</span><span class="p">,</span><span class="n">vr</span></div>
 
-<div class="viewcode-block" id="depthavg"><a class="viewcode-back" href="../../physoce.html#physoce.tseries.depthavg">[docs]</a><span class="k">def</span> <span class="nf">depthavg</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">ssh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">surface</span><span class="o">=</span><span class="s1">&#39;mixed&#39;</span><span class="p">,</span><span class="n">bottom</span><span class="o">=</span><span class="s1">&#39;zero&#39;</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39; </span>
-<span class="sd">Compute depth average of each row in 2D array x, with corresponding depths z. </span>
-
-<span class="sd">Designed to accomodate upward looking ADCP data, with moving sea surface and </span>
-<span class="sd">blank bins with no data near surface. If no sea surface height is specified, </span>
-<span class="sd">it is assumed to be at z=0 for all times.</span>
-<span class="sd">    </span>
-<span class="sd">x: variable to be depth-averaged, 2D array with shape N rows, M columns</span>
-<span class="sd">z: measurement depths (z=0 is surface, z=-h is bottom), array of length M</span>
-<span class="sd">h: bottom depth (positive value)</span>
-<span class="sd">ssh: sea surface height (optional, set to zero if None or where value is undefined)</span>
-<span class="sd">surface: boundary condition for surface</span>
-<span class="sd">        &#39;mixed&#39; (default) or &#39;extrap&#39;</span>
-<span class="sd">bottom:  boundary condition for bottom </span>
-<span class="sd">        &#39;zero&#39; (default),&#39;mixed&#39; or &#39;extrap&#39;</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    
-    <span class="c1"># ensure that inputs are arrays of floats</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
-    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
-    
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-
-    <span class="n">ni</span><span class="p">,</span><span class="n">nj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    
-    <span class="c1"># If SSH not specified, create an array of zeros</span>
-    <span class="k">if</span> <span class="n">ssh</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">ssh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ni</span><span class="p">)</span>
-        
-    <span class="n">ssh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ssh</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">ssh</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">ssh</span> <span class="o">=</span> <span class="n">ssh</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-    
-    <span class="c1"># ssh in 2D column array</span>
-    <span class="n">ssh2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">ssh</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
-    
-    <span class="c1"># depths in 2D array</span>
-    <span class="n">sorti</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
-    <span class="n">zs</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">sorti</span><span class="p">]</span>
-    <span class="n">zs2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">zs</span><span class="p">,[</span><span class="n">ni</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
-    
-    <span class="c1"># water depth in 2D column array</span>
-    <span class="n">h2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">h</span><span class="p">,[</span><span class="n">ni</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
-    
-    <span class="c1"># new 2D x and z arrays to work with, with bottom and surface included</span>
-    <span class="n">zmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="o">-</span><span class="n">h2</span><span class="p">,</span><span class="n">zs2</span><span class="p">,</span><span class="n">ssh2</span><span class="p">])</span>
-    <span class="n">nans2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">ni</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">xmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">nans2</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">nans2</span><span class="p">])</span>
-    
-    <span class="c1"># only do calculations for rows where finite data exist    </span>
-    <span class="n">fini</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">xmat</span><span class="p">)</span>
-    <span class="n">ii</span><span class="p">,</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">fini</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
-
-    <span class="c1"># bottom calculation</span>
-    <span class="k">if</span> <span class="n">bottom</span> <span class="ow">is</span> <span class="s1">&#39;zero&#39;</span><span class="p">:</span>
-        <span class="n">xmat</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
-    <span class="k">elif</span> <span class="n">bottom</span> <span class="ow">is</span> <span class="s1">&#39;mixed&#39;</span><span class="p">:</span>
-        <span class="n">xmat</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">xmat</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="n">bottom</span> <span class="ow">is</span> <span class="s1">&#39;extrap&#39;</span><span class="p">:</span>
-        <span class="n">xmat</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">xmat</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">xmat</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">zmat</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">zmat</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span> \
-                    <span class="o">/</span><span class="p">(</span><span class="n">zmat</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">zmat</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span> \
-                    <span class="o">+</span> <span class="n">xmat</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;depthavg: bottom condition not understood (should be </span><span class="se">\&#39;</span><span class="s1">mixed</span><span class="se">\&#39;</span><span class="s1">, </span><span class="se">\&#39;</span><span class="s1">extrap</span><span class="se">\&#39;</span><span class="s1"> or </span><span class="se">\&#39;</span><span class="s1">zero</span><span class="se">\&#39;</span><span class="s1">)&#39;</span><span class="p">)</span>    
-    
-    <span class="c1"># find where depths are higher than sea surface or where there is no data,</span>
-    <span class="c1"># mask with NaN Values</span>
-    <span class="n">xmatz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">xmat</span><span class="p">)</span>
-    <span class="n">xmatz</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
-    <span class="n">msk</span> <span class="o">=</span> <span class="p">(</span><span class="n">zmat</span> <span class="o">&gt;</span> <span class="n">ssh2</span><span class="p">)</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">xmatz</span><span class="p">)</span>
-    <span class="n">zmatnan</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">zmat</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">msk</span><span class="p">):</span>
-        <span class="n">zmatnan</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-    
-    <span class="c1"># sort each row of arrays by depth</span>
-    <span class="n">sj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">zmatnan</span><span class="p">)</span>
-    <span class="n">si</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">zmat</span><span class="p">)[</span><span class="mi">0</span><span class="p">])[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-    <span class="n">zmats</span> <span class="o">=</span> <span class="n">zmatnan</span><span class="p">[</span><span class="n">si</span><span class="p">,</span><span class="n">sj</span><span class="p">]</span>
-    <span class="n">xmats</span> <span class="o">=</span> <span class="n">xmat</span><span class="p">[</span><span class="n">si</span><span class="p">,</span><span class="n">sj</span><span class="p">]</span>
-    
-    <span class="c1"># column index of surface in each row where data exists</span>
-    <span class="n">jj</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">zmats</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="n">ii</span><span class="p">]</span>
-    
-    <span class="c1"># calculate surface value</span>
-    <span class="k">if</span> <span class="n">surface</span> <span class="o">==</span> <span class="s1">&#39;mixed&#39;</span><span class="p">:</span>
-        <span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="n">surface</span> <span class="o">==</span> <span class="s1">&#39;extrap&#39;</span><span class="p">:</span>
-        <span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">zmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span><span class="o">-</span><span class="n">zmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> \
-                     <span class="o">/</span><span class="p">(</span><span class="n">zmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">zmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> \
-                     <span class="o">+</span> <span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;depthavg: surface condition not understood (should be </span><span class="se">\&#39;</span><span class="s1">mixed</span><span class="se">\&#39;</span><span class="s1"> or </span><span class="se">\&#39;</span><span class="s1">extrap</span><span class="se">\&#39;</span><span class="s1">)&#39;</span><span class="p">)</span>
-    
-    <span class="c1"># integrate vertically using trapezoidal rule</span>
-    <span class="n">xm</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">xmats</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">xmats</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:])</span>
-    <span class="n">dz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">zmats</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">xint</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">xm</span><span class="o">*</span><span class="n">dz</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    
-    <span class="c1"># divide by instantaneous water depth to compute depth average</span>
-    <span class="n">xda</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="o">*</span><span class="n">ssh</span>
-    <span class="n">xda</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">xint</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">ssh</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">+</span> <span class="n">h</span><span class="p">)</span>    
-
-    <span class="k">return</span> <span class="n">xda</span></div>
-    
 <div class="viewcode-block" id="fillgapwithnan"><a class="viewcode-back" href="../../physoce.html#physoce.tseries.fillgapwithnan">[docs]</a><span class="k">def</span> <span class="nf">fillgapwithnan</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">date</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Fill in missing data with NaN values. This is intended for a regular time series that has gaps where no data are reported. </span>
@@ -508,6 +440,392 @@
 
     <span class="k">return</span> <span class="p">(</span><span class="n">newx</span><span class="p">,</span><span class="n">newdate</span><span class="p">)</span></div>
     
+<div class="viewcode-block" id="depthavg"><a class="viewcode-back" href="../../physoce.html#physoce.tseries.depthavg">[docs]</a><span class="k">def</span> <span class="nf">depthavg</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">ssh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">surface</span><span class="o">=</span><span class="s1">&#39;mixed&#39;</span><span class="p">,</span><span class="n">bottom</span><span class="o">=</span><span class="s1">&#39;zero&#39;</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; </span>
+<span class="sd">Compute depth average of each row in 2D array x, with corresponding depths z. </span>
+
+<span class="sd">Designed to accomodate upward looking ADCP data, with moving sea surface and </span>
+<span class="sd">blank bins with no data near surface. If no sea surface height is specified, </span>
+<span class="sd">it is assumed to be at z=0 for all times.</span>
+<span class="sd">    </span>
+<span class="sd">x: variable to be depth-averaged, 2D array with shape N rows, M columns</span>
+<span class="sd">z: measurement depths (z=0 is surface, z=-h is bottom), array of length M</span>
+<span class="sd">h: bottom depth (positive value)</span>
+<span class="sd">ssh: sea surface height (optional, set to zero if None or where value is undefined)</span>
+<span class="sd">surface: boundary condition for surface</span>
+<span class="sd">        &#39;mixed&#39; (default) or &#39;extrap&#39;</span>
+<span class="sd">bottom:  boundary condition for bottom </span>
+<span class="sd">        &#39;zero&#39; (default),&#39;mixed&#39; or &#39;extrap&#39;</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="c1"># ensure that inputs are arrays of floats</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+
+    <span class="n">ni</span><span class="p">,</span><span class="n">nj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    
+    <span class="c1"># If SSH not specified, create an array of zeros</span>
+    <span class="k">if</span> <span class="n">ssh</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ssh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ni</span><span class="p">)</span>
+        
+    <span class="n">ssh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ssh</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">ssh</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">ssh</span> <span class="o">=</span> <span class="n">ssh</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    
+    <span class="c1"># ssh in 2D column array</span>
+    <span class="n">ssh2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">ssh</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+    
+    <span class="c1"># depths in 2D array</span>
+    <span class="n">sorti</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+    <span class="n">zs</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">sorti</span><span class="p">]</span>
+    <span class="n">zs2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">zs</span><span class="p">,[</span><span class="n">ni</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">xs2</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span><span class="n">sorti</span><span class="p">]</span> <span class="c1"># sort data in same manner as depths</span>
+    
+    <span class="c1"># water depth in 2D column array</span>
+    <span class="n">h2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">h</span><span class="p">,[</span><span class="n">ni</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+    
+    <span class="c1"># new 2D x and z arrays to work with, with bottom and surface included</span>
+    <span class="n">zmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="o">-</span><span class="n">h2</span><span class="p">,</span><span class="n">zs2</span><span class="p">,</span><span class="n">ssh2</span><span class="p">])</span>
+    <span class="n">nans2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">ni</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">xmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">nans2</span><span class="p">,</span><span class="n">xs2</span><span class="p">,</span><span class="n">nans2</span><span class="p">])</span>
+    
+    <span class="c1"># only do calculations for rows where finite data exist    </span>
+    <span class="n">fini</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">xmat</span><span class="p">)</span>
+    <span class="n">ii</span><span class="p">,</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">fini</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># bottom calculation</span>
+    <span class="k">if</span> <span class="n">bottom</span> <span class="o">==</span> <span class="s1">&#39;zero&#39;</span><span class="p">:</span>
+        <span class="n">xmat</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="k">elif</span> <span class="n">bottom</span> <span class="o">==</span> <span class="s1">&#39;mixed&#39;</span><span class="p">:</span>
+        <span class="n">xmat</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">xmat</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">bottom</span> <span class="o">==</span> <span class="s1">&#39;extrap&#39;</span><span class="p">:</span>
+        <span class="n">xmat</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">xmat</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">xmat</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">zmat</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">zmat</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span> \
+                    <span class="o">/</span><span class="p">(</span><span class="n">zmat</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">zmat</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span> \
+                    <span class="o">+</span> <span class="n">xmat</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;depthavg: bottom condition not understood (should be </span><span class="se">\&#39;</span><span class="s1">mixed</span><span class="se">\&#39;</span><span class="s1">, </span><span class="se">\&#39;</span><span class="s1">extrap</span><span class="se">\&#39;</span><span class="s1"> or </span><span class="se">\&#39;</span><span class="s1">zero</span><span class="se">\&#39;</span><span class="s1">)&#39;</span><span class="p">)</span>    
+    
+    <span class="c1"># find where depths are higher than sea surface or where there is no data,</span>
+    <span class="c1"># mask with NaN Values</span>
+    <span class="n">xmatz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">xmat</span><span class="p">)</span>
+    <span class="n">xmatz</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="n">msk</span> <span class="o">=</span> <span class="p">(</span><span class="n">zmat</span> <span class="o">&gt;</span> <span class="n">ssh2</span><span class="p">)</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">xmatz</span><span class="p">)</span>
+    <span class="n">zmatnan</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">zmat</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">msk</span><span class="p">):</span>
+        <span class="n">zmatnan</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    
+    <span class="c1"># sort each row of arrays by depth</span>
+    <span class="n">sj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">zmatnan</span><span class="p">)</span>
+    <span class="n">si</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">zmat</span><span class="p">)[</span><span class="mi">0</span><span class="p">])[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">zmats</span> <span class="o">=</span> <span class="n">zmatnan</span><span class="p">[</span><span class="n">si</span><span class="p">,</span><span class="n">sj</span><span class="p">]</span>
+    <span class="n">xmats</span> <span class="o">=</span> <span class="n">xmat</span><span class="p">[</span><span class="n">si</span><span class="p">,</span><span class="n">sj</span><span class="p">]</span>
+    
+    <span class="c1"># column index of surface in each row where data exists</span>
+    <span class="n">jj</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">zmats</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="n">ii</span><span class="p">]</span>
+    
+    <span class="c1"># calculate surface value</span>
+    <span class="k">if</span> <span class="n">surface</span> <span class="o">==</span> <span class="s1">&#39;mixed&#39;</span><span class="p">:</span>
+        <span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">surface</span> <span class="o">==</span> <span class="s1">&#39;extrap&#39;</span><span class="p">:</span>
+        <span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">zmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span><span class="o">-</span><span class="n">zmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> \
+                     <span class="o">/</span><span class="p">(</span><span class="n">zmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">zmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> \
+                     <span class="o">+</span> <span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;depthavg: surface condition not understood (should be </span><span class="se">\&#39;</span><span class="s1">mixed</span><span class="se">\&#39;</span><span class="s1"> or </span><span class="se">\&#39;</span><span class="s1">extrap</span><span class="se">\&#39;</span><span class="s1">)&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># integrate vertically using trapezoidal rule</span>
+    <span class="n">xm</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">xmats</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">xmats</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="n">dz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">zmats</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">xint</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">xm</span><span class="o">*</span><span class="n">dz</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    
+    <span class="c1"># divide by instantaneous water depth to compute depth average</span>
+    <span class="n">xda</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="o">*</span><span class="n">ssh</span>
+    <span class="n">xda</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">xint</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">ssh</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">+</span> <span class="n">h</span><span class="p">)</span>    
+
+    <span class="k">return</span> <span class="n">xda</span></div>
+    
+<div class="viewcode-block" id="surface_transport"><a class="viewcode-back" href="../../physoce.html#physoce.tseries.surface_transport">[docs]</a><span class="k">def</span> <span class="nf">surface_transport</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="n">ssh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">surface</span><span class="o">=</span><span class="s1">&#39;mixed&#39;</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; </span>
+<span class="sd">Compute surface transport Us from velocity component u, with corresponding depths z. </span>
+
+<span class="sd">Integration is performed from the sea surface to the first zero crossing in the u profile.</span>
+
+<span class="sd">If u has units of m/s, Us will have units of m^2/s.</span>
+
+<span class="sd">Designed to accomodate upward looking ADCP data, with moving sea surface and </span>
+<span class="sd">blank bins with no data near surface. If no sea surface height is specified, </span>
+<span class="sd">it is assumed to be at z=0 for all times.</span>
+
+<span class="sd">INPUT:</span>
+<span class="sd">x: variable to be depth-averaged, 2D array with shape N rows, M columns</span>
+<span class="sd">z: measurement depths (z=0 is surface, negative below surface), array of length M</span>
+<span class="sd">ssh: sea surface height (optional, set to zero if None or where value is undefined)</span>
+<span class="sd">surface: boundary condition for surface</span>
+<span class="sd">        &#39;mixed&#39; (default) or &#39;extrap&#39;</span>
+<span class="sd">        </span>
+<span class="sd">OUTPUT:</span>
+<span class="sd">Us - transport integrated from surface to first zero crossing of velocity profiled</span>
+<span class="sd">zs - depth of first zero crossing</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="c1"># ensure that inputs are arrays of floats</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">u</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+
+    <span class="n">ni</span><span class="p">,</span><span class="n">nj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    
+    <span class="c1"># If SSH not specified, create an array of zeros</span>
+    <span class="k">if</span> <span class="n">ssh</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ssh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ni</span><span class="p">)</span>
+        
+    <span class="n">ssh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ssh</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">ssh</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">ssh</span> <span class="o">=</span> <span class="n">ssh</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    
+    <span class="c1"># ssh in 2D column array</span>
+    <span class="n">ssh2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">ssh</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+    
+    <span class="c1"># depths in 2D array</span>
+    <span class="n">sorti</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+    <span class="n">zsort</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">sorti</span><span class="p">]</span>
+    <span class="n">zs2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">zsort</span><span class="p">,[</span><span class="n">ni</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">xs2</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span><span class="n">sorti</span><span class="p">]</span> <span class="c1"># sort data in same manner as depths</span>
+    
+    <span class="c1"># make sure that there is at least one zero crossing </span>
+    <span class="c1"># just below the deepest level</span>
+    <span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+    <span class="n">zend</span> <span class="o">=</span> <span class="n">zs2</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">eps</span><span class="p">)</span>
+    <span class="n">xend</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">xs2</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">eps</span><span class="p">)</span>
+    
+    <span class="n">zend</span> <span class="o">=</span> <span class="n">zend</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">xend</span> <span class="o">=</span> <span class="n">xend</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    
+    <span class="c1"># new 2D x and z arrays to work with, with bottom and surface included</span>
+    <span class="n">zmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">zend</span><span class="p">,</span><span class="n">zs2</span><span class="p">,</span><span class="n">ssh2</span><span class="p">])</span>
+    <span class="n">nans2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">ni</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">xmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">xend</span><span class="p">,</span><span class="n">xs2</span><span class="p">,</span><span class="n">nans2</span><span class="p">])</span>
+    
+    <span class="c1"># only do calculations for rows where finite data exist    </span>
+    <span class="n">fini</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">xmat</span><span class="p">)</span>
+    <span class="n">ii</span><span class="p">,</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">fini</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># find where depths are higher than sea surface or where there is no data,</span>
+    <span class="c1"># mask with NaN Values</span>
+    <span class="n">xmatz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">xmat</span><span class="p">)</span>
+    <span class="n">xmatz</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="n">msk</span> <span class="o">=</span> <span class="p">(</span><span class="n">zmat</span> <span class="o">&gt;</span> <span class="n">ssh2</span><span class="p">)</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">xmatz</span><span class="p">)</span>
+    <span class="n">zmatnan</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">zmat</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">msk</span><span class="p">):</span>
+        <span class="n">zmatnan</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    
+    <span class="c1"># sort each row of arrays by depth</span>
+    <span class="n">sj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">zmatnan</span><span class="p">)</span>
+    <span class="n">si</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">zmat</span><span class="p">)[</span><span class="mi">0</span><span class="p">])[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">zmats</span> <span class="o">=</span> <span class="n">zmatnan</span><span class="p">[</span><span class="n">si</span><span class="p">,</span><span class="n">sj</span><span class="p">]</span>
+    <span class="n">xmats</span> <span class="o">=</span> <span class="n">xmat</span><span class="p">[</span><span class="n">si</span><span class="p">,</span><span class="n">sj</span><span class="p">]</span>
+    
+    <span class="c1"># column index of surface in each row where data exists</span>
+    <span class="n">jj</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">zmats</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="n">ii</span><span class="p">]</span>
+    
+    <span class="c1"># calculate surface value</span>
+    <span class="k">if</span> <span class="n">surface</span> <span class="o">==</span> <span class="s1">&#39;mixed&#39;</span><span class="p">:</span>
+        <span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">surface</span> <span class="o">==</span> <span class="s1">&#39;extrap&#39;</span><span class="p">:</span>
+        <span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">zmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span><span class="o">-</span><span class="n">zmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> \
+                     <span class="o">/</span><span class="p">(</span><span class="n">zmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">zmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> \
+                     <span class="o">+</span> <span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;surface_transport: surface condition not understood (should be </span><span class="se">\&#39;</span><span class="s1">mixed</span><span class="se">\&#39;</span><span class="s1"> or </span><span class="se">\&#39;</span><span class="s1">extrap</span><span class="se">\&#39;</span><span class="s1">)&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Flip 2D array so that surface is first column</span>
+    <span class="n">xmatr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span><span class="n">xmats</span><span class="p">)</span>
+    <span class="n">zmatr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span><span class="n">zmats</span><span class="p">)</span>
+    
+    <span class="c1"># Find index just above first zero crossing</span>
+    <span class="n">zj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">xmatr</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">xmatr</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:])</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    
+    <span class="c1"># Compute depth of first zero crossing using linear interpolation</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">ni</span><span class="p">)</span>
+    <span class="n">zs</span> <span class="o">=</span> <span class="n">zmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="p">]</span> <span class="o">-</span> <span class="n">xmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">zmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="p">]</span><span class="o">-</span><span class="n">zmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">xmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="p">]</span><span class="o">-</span><span class="n">xmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+    
+    <span class="c1"># create rectangular array, where columns are integers starting from zero</span>
+    <span class="n">jmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">xmatr</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">xmatr</span><span class="p">)[</span><span class="mi">0</span><span class="p">])[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    
+    <span class="c1"># use to create mask of depths between surface and zero crossing</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">less_equal</span><span class="p">(</span><span class="n">jmat</span><span class="p">,</span><span class="n">zj</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+    
+    <span class="c1"># Replace data below first zero crossing with zeros</span>
+    <span class="n">xmatr</span> <span class="o">=</span> <span class="n">mask</span><span class="o">*</span><span class="n">xmatr</span>
+    
+    <span class="c1"># Use depth of first zero crossing for zero velocity closest to surface</span>
+    <span class="n">zmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">zs</span>
+    
+    <span class="c1"># integrate vertically using trapezoidal rule</span>
+    <span class="n">xm</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">xmatr</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">xmatr</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="n">dz</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">zmatr</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># negative because depths are decreasing</span>
+    <span class="n">Us</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">xm</span><span class="o">*</span><span class="n">dz</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> 
+    
+    <span class="n">badi</span><span class="p">,</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">xm</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
+    <span class="n">Us</span><span class="p">[</span><span class="n">badi</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">zs</span><span class="p">[</span><span class="n">badi</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="k">return</span> <span class="n">Us</span><span class="p">,</span><span class="n">zs</span></div>
+
+<div class="viewcode-block" id="surface_flux"><a class="viewcode-back" href="../../physoce.html#physoce.tseries.surface_flux">[docs]</a><span class="k">def</span> <span class="nf">surface_flux</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="n">tr</span><span class="p">,</span><span class="n">ssh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">surface</span><span class="o">=</span><span class="s1">&#39;mixed&#39;</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; </span>
+<span class="sd">Compute integrated surface-layer flux of a tracer tr, due to velocity component u with corresponding depths z. </span>
+
+<span class="sd">Integration is performed from the sea surface to the first zero crossing in the u profile.</span>
+
+<span class="sd">If u has units of m/s, and tr has units of C, result will have units of (C m^2)/s</span>
+
+<span class="sd">Designed to accomodate upward looking ADCP data, with moving sea surface and </span>
+<span class="sd">blank bins with no data near surface. If no sea surface height is specified, </span>
+<span class="sd">it is assumed to be at z=0 for all times.</span>
+
+<span class="sd">INPUT:</span>
+<span class="sd">u: velocity, 2D array with shape N rows, M columns</span>
+<span class="sd">z: measurement depths (z=0 is surface, negative below surface), array of length M</span>
+<span class="sd">tr: tracer values (N rows, M columns corresponding to depths z)</span>
+<span class="sd">ssh: sea surface height (optional, set to zero if None or where value is undefined)</span>
+<span class="sd">surface: boundary condition for surface</span>
+<span class="sd">        &#39;mixed&#39; (default) or &#39;extrap&#39;</span>
+<span class="sd">        </span>
+<span class="sd">OUTPUT:</span>
+<span class="sd">trflux - tracer flux integrated from surface to first zero crossing of velocity profile</span>
+<span class="sd">tr0 - tracer value at first zero crossing of velocity profile</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="c1"># ensure that inputs are arrays of floats</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">u</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+    <span class="n">tr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tr</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">tr</span> <span class="o">=</span> <span class="n">tr</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+
+    <span class="n">ni</span><span class="p">,</span><span class="n">nj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    
+    <span class="c1"># If SSH not specified, create an array of zeros</span>
+    <span class="k">if</span> <span class="n">ssh</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ssh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ni</span><span class="p">)</span>
+        
+    <span class="n">ssh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ssh</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">ssh</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">ssh</span> <span class="o">=</span> <span class="n">ssh</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    
+    <span class="c1"># ssh in 2D column array</span>
+    <span class="n">ssh2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">ssh</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+    
+    <span class="c1"># depths in 2D array</span>
+    <span class="n">sorti</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+    <span class="n">zsort</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">sorti</span><span class="p">]</span> <span class="c1"># sort depths</span>
+    <span class="n">zs2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">zsort</span><span class="p">,[</span><span class="n">ni</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">xs2</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span><span class="n">sorti</span><span class="p">]</span> <span class="c1"># sort data in same manner as depths</span>
+    <span class="n">trs2</span> <span class="o">=</span> <span class="n">tr</span><span class="p">[:,</span><span class="n">sorti</span><span class="p">]</span> <span class="c1"># sort data in same manner as depths</span>
+    
+    <span class="c1"># make sure that there is at least one zero crossing </span>
+    <span class="c1"># just below the deepest level</span>
+    <span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+    <span class="n">zend</span> <span class="o">=</span> <span class="n">zs2</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">eps</span><span class="p">)</span>
+    <span class="n">xend</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">xs2</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">eps</span><span class="p">)</span>
+    <span class="n">trend</span> <span class="o">=</span> <span class="n">trs2</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="n">zend</span> <span class="o">=</span> <span class="n">zend</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">xend</span> <span class="o">=</span> <span class="n">xend</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">trend</span> <span class="o">=</span> <span class="n">trend</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    
+    <span class="c1"># new 2D x and z arrays to work with, with bottom and surface included</span>
+    <span class="n">zmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">zend</span><span class="p">,</span><span class="n">zs2</span><span class="p">,</span><span class="n">ssh2</span><span class="p">])</span>
+    <span class="n">nans2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">ni</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">xmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">xend</span><span class="p">,</span><span class="n">xs2</span><span class="p">,</span><span class="n">nans2</span><span class="p">])</span>
+    <span class="n">trmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">trend</span><span class="p">,</span><span class="n">trs2</span><span class="p">,</span><span class="n">nans2</span><span class="p">])</span>
+    
+    <span class="c1"># only do calculations for rows where finite data exist    </span>
+    <span class="n">fini</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">xmat</span><span class="p">)</span>
+    <span class="n">ii</span><span class="p">,</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">fini</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># find where depths are higher than sea surface or where there is no data,</span>
+    <span class="c1"># mask with NaN Values</span>
+    <span class="n">xmatz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">xmat</span><span class="p">)</span>
+    <span class="n">xmatz</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="n">msk</span> <span class="o">=</span> <span class="p">(</span><span class="n">zmat</span> <span class="o">&gt;</span> <span class="n">ssh2</span><span class="p">)</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">xmatz</span><span class="p">)</span>
+    <span class="n">zmatnan</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">zmat</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">msk</span><span class="p">):</span>
+        <span class="n">zmatnan</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    
+    <span class="c1"># sort each row of arrays by depth</span>
+    <span class="n">sj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">zmatnan</span><span class="p">)</span>
+    <span class="n">si</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">zmat</span><span class="p">)[</span><span class="mi">0</span><span class="p">])[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">zmats</span> <span class="o">=</span> <span class="n">zmatnan</span><span class="p">[</span><span class="n">si</span><span class="p">,</span><span class="n">sj</span><span class="p">]</span>
+    <span class="n">xmats</span> <span class="o">=</span> <span class="n">xmat</span><span class="p">[</span><span class="n">si</span><span class="p">,</span><span class="n">sj</span><span class="p">]</span>
+    <span class="n">trmats</span> <span class="o">=</span> <span class="n">trmat</span><span class="p">[</span><span class="n">si</span><span class="p">,</span><span class="n">sj</span><span class="p">]</span>
+    
+    <span class="c1"># column index of surface in each row where data exists</span>
+    <span class="n">jj</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">zmats</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="n">ii</span><span class="p">]</span>
+    
+    <span class="c1"># calculate surface value</span>
+    <span class="k">if</span> <span class="n">surface</span> <span class="o">==</span> <span class="s1">&#39;mixed&#39;</span><span class="p">:</span>
+        <span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">trmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">trmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">surface</span> <span class="o">==</span> <span class="s1">&#39;extrap&#39;</span><span class="p">:</span>
+        <span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">zmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span><span class="o">-</span><span class="n">zmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> \
+                     <span class="o">/</span><span class="p">(</span><span class="n">zmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">zmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> \
+                     <span class="o">+</span> <span class="n">xmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">trmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">trmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">trmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">zmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span><span class="o">-</span><span class="n">zmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> \
+                     <span class="o">/</span><span class="p">(</span><span class="n">zmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">zmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> \
+                     <span class="o">+</span> <span class="n">trmats</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;surface_transport: surface condition not understood (should be </span><span class="se">\&#39;</span><span class="s1">mixed</span><span class="se">\&#39;</span><span class="s1"> or </span><span class="se">\&#39;</span><span class="s1">extrap</span><span class="se">\&#39;</span><span class="s1">)&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Flip 2D array so that surface is first column</span>
+    <span class="n">xmatr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span><span class="n">xmats</span><span class="p">)</span>
+    <span class="n">zmatr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span><span class="n">zmats</span><span class="p">)</span>
+    <span class="n">trmatr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span><span class="n">trmats</span><span class="p">)</span>
+    
+    <span class="c1"># Find index just above first zero crossing</span>
+    <span class="n">zj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">xmatr</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">xmatr</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:])</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    
+    <span class="c1"># Compute depth of first zero crossing using linear interpolation</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">ni</span><span class="p">)</span>
+    <span class="n">zs</span> <span class="o">=</span> <span class="n">zmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="p">]</span> <span class="o">-</span> <span class="n">xmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">zmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="p">]</span><span class="o">-</span><span class="n">zmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">xmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="p">]</span><span class="o">-</span><span class="n">xmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+    
+    <span class="c1"># Compute tracer value at first zero crossing using linear interpolation</span>
+    <span class="n">trs</span> <span class="o">=</span> <span class="n">trmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="p">]</span> <span class="o">-</span> <span class="n">xmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">trmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="p">]</span><span class="o">-</span><span class="n">trmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">xmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="p">]</span><span class="o">-</span><span class="n">xmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>    
+    
+    <span class="c1"># create rectangular array, where columns are integers starting from zero</span>
+    <span class="n">jmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">xmatr</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">xmatr</span><span class="p">)[</span><span class="mi">0</span><span class="p">])[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    
+    <span class="c1"># use to create mask of depths between surface and zero crossing</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">less_equal</span><span class="p">(</span><span class="n">jmat</span><span class="p">,</span><span class="n">zj</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+    
+    <span class="c1"># Replace data below first zero crossing with zeros</span>
+    <span class="n">xmatr</span> <span class="o">=</span> <span class="n">mask</span><span class="o">*</span><span class="n">xmatr</span>
+    <span class="n">trmatr</span> <span class="o">=</span> <span class="n">mask</span><span class="o">*</span><span class="n">trmatr</span>
+    
+    <span class="c1"># Use depth of first zero crossing for zero velocity closest to surface</span>
+    <span class="n">zmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">zs</span>
+    <span class="n">trmatr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">zj</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">trs</span>
+    
+    <span class="c1"># integrate vertically using trapezoidal rule</span>
+    <span class="n">xm</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">xmatr</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">xmatr</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="n">trm</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">trmatr</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">trmatr</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="n">dz</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">zmatr</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># negative because depths are decreasing</span>
+    <span class="n">trflux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">xm</span><span class="o">*</span><span class="n">trm</span><span class="o">*</span><span class="n">dz</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> 
+    
+    <span class="n">badi</span><span class="p">,</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">xm</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
+    <span class="n">trflux</span><span class="p">[</span><span class="n">badi</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">zs</span><span class="p">[</span><span class="n">badi</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="k">return</span> <span class="n">trflux</span><span class="p">,</span> <span class="n">trs</span></div>
+
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     
     <span class="c1"># Test princax function</span>
@@ -536,6 +854,106 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;rot test: passed&#39;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;rot test: failed&#39;</span><span class="p">)</span>
+        
+    <span class="c1"># test case #1 - depth avg</span>
+    <span class="n">u1</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>        <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+               <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.0018506</span> <span class="p">,</span>  <span class="mf">0.00057345</span><span class="p">,</span>
+       <span class="o">-</span><span class="mf">0.00027954</span><span class="p">,</span>  <span class="mf">0.00304925</span><span class="p">,</span>  <span class="mf">0.0056888</span> <span class="p">,</span>  <span class="mf">0.01057738</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00096978</span><span class="p">,</span>
+        <span class="mf">0.00614675</span><span class="p">,</span>  <span class="mf">0.00302453</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00028928</span><span class="p">,</span>  <span class="mf">0.00077288</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00768713</span><span class="p">,</span>
+       <span class="o">-</span><span class="mf">0.01823976</span><span class="p">,</span>  <span class="mf">0.00612571</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00397687</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00580832</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00833382</span><span class="p">,</span>
+        <span class="mf">0.0017868</span> <span class="p">,</span> <span class="o">-</span><span class="mf">0.00530538</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01031236</span><span class="p">])</span>
+    <span class="n">u2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>        <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+               <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>  <span class="mf">0.00150274</span><span class="p">,</span>  <span class="mf">0.00745662</span><span class="p">,</span>
+        <span class="mf">0.00235997</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00074239</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00298656</span><span class="p">,</span>  <span class="mf">0.00302234</span><span class="p">,</span>  <span class="mf">0.00318832</span><span class="p">,</span>
+       <span class="o">-</span><span class="mf">0.00169822</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00439177</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00226204</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00400032</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01001337</span><span class="p">,</span>
+       <span class="o">-</span><span class="mf">0.00913997</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00681736</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01331132</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00100251</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01532928</span><span class="p">,</span>
+       <span class="o">-</span><span class="mf">0.01763108</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01194093</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01909814</span><span class="p">])</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">u1</span><span class="p">,</span><span class="n">u2</span><span class="p">])</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mf">1.49</span><span class="p">,</span>  <span class="mf">1.24</span><span class="p">,</span>  <span class="mf">0.99</span><span class="p">,</span>  <span class="mf">0.74</span><span class="p">,</span>  <span class="mf">0.49</span><span class="p">,</span>  <span class="mf">0.24</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.26</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.51</span><span class="p">,</span>
+       <span class="o">-</span><span class="mf">0.76</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.01</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.26</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.51</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.76</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.01</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.26</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.51</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.76</span><span class="p">,</span>
+       <span class="o">-</span><span class="mf">3.01</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.26</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.51</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.76</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.01</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.26</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.51</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.76</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.01</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.26</span><span class="p">])</span>
+    <span class="n">ubar</span> <span class="o">=</span> <span class="n">depthavg</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="mi">7</span><span class="p">)</span>
+    
+    <span class="n">ub</span> <span class="o">=</span> <span class="n">u</span><span class="p">[:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">zb</span> <span class="o">=</span> <span class="n">z</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">ubarb</span> <span class="o">=</span> <span class="n">depthavg</span><span class="p">(</span><span class="n">ub</span><span class="p">,</span><span class="n">zb</span><span class="p">,</span><span class="mi">7</span><span class="p">)</span>
+    
+    <span class="n">test</span> <span class="o">=</span> <span class="p">(</span><span class="n">ubar</span> <span class="o">==</span> <span class="n">ubarb</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">test</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;depthavg test #1: passed&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;depthavg test #1: failed&#39;</span><span class="p">)</span>
+                         
+    <span class="c1"># surface transport test case #1</span>
+    <span class="n">u1</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>        <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+               <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.0018506</span> <span class="p">,</span>  <span class="mf">0.00057345</span><span class="p">,</span>
+       <span class="o">-</span><span class="mf">0.00027954</span><span class="p">,</span>  <span class="mf">0.00304925</span><span class="p">,</span>  <span class="mf">0.0056888</span> <span class="p">,</span>  <span class="mf">0.01057738</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00096978</span><span class="p">,</span>
+        <span class="mf">0.00614675</span><span class="p">,</span>  <span class="mf">0.00302453</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00028928</span><span class="p">,</span>  <span class="mf">0.00077288</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00768713</span><span class="p">,</span>
+       <span class="o">-</span><span class="mf">0.01823976</span><span class="p">,</span>  <span class="mf">0.00612571</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00397687</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00580832</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00833382</span><span class="p">,</span>
+        <span class="mf">0.0017868</span> <span class="p">,</span> <span class="o">-</span><span class="mf">0.00530538</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01031236</span><span class="p">])</span>
+    <span class="n">u2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>        <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+               <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>         <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>  <span class="mf">0.00150274</span><span class="p">,</span>  <span class="mf">0.00745662</span><span class="p">,</span>
+        <span class="mf">0.00235997</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00074239</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00298656</span><span class="p">,</span>  <span class="mf">0.00302234</span><span class="p">,</span>  <span class="mf">0.00318832</span><span class="p">,</span>
+       <span class="o">-</span><span class="mf">0.00169822</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00439177</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00226204</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00400032</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01001337</span><span class="p">,</span>
+       <span class="o">-</span><span class="mf">0.00913997</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00681736</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01331132</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00100251</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01532928</span><span class="p">,</span>
+       <span class="o">-</span><span class="mf">0.01763108</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01194093</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01909814</span><span class="p">])</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">u1</span><span class="p">,</span><span class="n">u2</span><span class="p">])</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mf">1.49</span><span class="p">,</span>  <span class="mf">1.24</span><span class="p">,</span>  <span class="mf">0.99</span><span class="p">,</span>  <span class="mf">0.74</span><span class="p">,</span>  <span class="mf">0.49</span><span class="p">,</span>  <span class="mf">0.24</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.26</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.51</span><span class="p">,</span>
+       <span class="o">-</span><span class="mf">0.76</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.01</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.26</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.51</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.76</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.01</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.26</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.51</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.76</span><span class="p">,</span>
+       <span class="o">-</span><span class="mf">3.01</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.26</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.51</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.76</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.01</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.26</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.51</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.76</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.01</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.26</span><span class="p">])</span>
+    <span class="n">Us</span><span class="p">,</span><span class="n">zs</span> <span class="o">=</span> <span class="n">surface_transport</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">z</span><span class="p">)</span>
+    
+    <span class="n">test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">Us</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">zs</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()])</span>
+    <span class="k">if</span> <span class="n">test</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;surface transport test #1: passed&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;depthavg test #1: failed&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># surface transport/flux test case #2</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">1</span><span class="p">],</span>
+                  <span class="p">[</span> <span class="mi">1</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]])</span>
+    
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    
+    <span class="n">tr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                  <span class="p">[</span> <span class="mi">1</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+    
+    <span class="n">Us2</span><span class="p">,</span><span class="n">zs2</span> <span class="o">=</span> <span class="n">surface_transport</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">z</span><span class="p">)</span>
+    <span class="n">trflux2</span><span class="p">,</span><span class="n">trs2</span> <span class="o">=</span> <span class="n">surface_flux</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="n">tr</span><span class="p">)</span>
+    
+    <span class="n">test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">Us2</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">zs2</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+                     <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">trflux2</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">trs2</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+                     <span class="n">zs2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">&gt;-</span><span class="mi">4</span><span class="p">,</span><span class="n">zs2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">&lt;-</span><span class="mi">3</span><span class="p">,</span><span class="n">zs2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">&gt;-</span><span class="mi">3</span><span class="p">,</span><span class="n">zs2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">&lt;-</span><span class="mi">2</span><span class="p">,</span>
+                     <span class="n">trflux2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==-</span><span class="n">Us2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">trflux2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="n">Us2</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+    <span class="k">if</span> <span class="n">test</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;surface transport/flux test #2: passed&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;depthavg test #2: failed&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># surface transport/flux test case #3 (no zero crossing)</span>
+    <span class="n">z3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">2.</span> <span class="p">,</span> <span class="o">-</span><span class="mf">2.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.</span> <span class="p">,</span> <span class="o">-</span><span class="mf">3.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.</span> <span class="p">,</span> <span class="o">-</span><span class="mf">4.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.</span> <span class="p">,</span> <span class="o">-</span><span class="mf">5.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.</span> <span class="p">,</span> <span class="o">-</span><span class="mf">6.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">7.</span> <span class="p">,</span>
+       <span class="o">-</span><span class="mf">7.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">8.</span> <span class="p">,</span> <span class="o">-</span><span class="mf">8.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">9.</span> <span class="p">,</span> <span class="o">-</span><span class="mf">9.5</span><span class="p">])</span>
+    <span class="n">u3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span> <span class="mf">4.21860615e-04</span><span class="p">,</span>  <span class="mf">2.31305385e-03</span><span class="p">,</span>  <span class="mf">1.31356857e-03</span><span class="p">,</span>
+         <span class="mf">1.94045833e-03</span><span class="p">,</span>  <span class="mf">2.89933335e-04</span><span class="p">,</span>  <span class="mf">2.86449031e-03</span><span class="p">,</span>
+         <span class="mf">1.97513672e-03</span><span class="p">,</span>  <span class="mf">6.18211638e-03</span><span class="p">,</span>  <span class="mf">3.36873352e-03</span><span class="p">,</span>
+         <span class="mf">5.39932390e-03</span><span class="p">,</span>  <span class="mf">5.50479300e-03</span><span class="p">,</span>  <span class="mf">4.40279194e-03</span><span class="p">,</span>
+         <span class="mf">5.36942569e-03</span><span class="p">,</span>  <span class="mf">6.60713067e-03</span><span class="p">,</span>  <span class="mf">5.74801833e-03</span><span class="p">,</span>
+         <span class="mf">3.50485563e-03</span><span class="p">])</span>
+    <span class="n">tr3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+       <span class="p">[</span><span class="o">-</span><span class="mf">0.08513565</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.08006332</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.0802531</span> <span class="p">,</span> <span class="o">-</span><span class="mf">0.07925762</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.07745643</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">0.07925762</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.07736153</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.07698196</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.07726664</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.07608137</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">0.07608137</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.07418528</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.0730949</span> <span class="p">,</span> <span class="o">-</span><span class="mf">0.07499098</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.07608137</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">0.07328469</span><span class="p">])</span>
+       
+    <span class="n">Us3</span><span class="p">,</span><span class="n">zs3</span> <span class="o">=</span> <span class="n">surface_transport</span><span class="p">(</span><span class="n">u3</span><span class="p">,</span><span class="n">z3</span><span class="p">)</span>
+    <span class="n">trflux3</span><span class="p">,</span><span class="n">trs3</span> <span class="o">=</span> <span class="n">surface_flux</span><span class="p">(</span><span class="n">u3</span><span class="p">,</span><span class="n">z3</span><span class="p">,</span><span class="n">tr3</span><span class="p">)</span>
+    
+    <span class="n">test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">Us3</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">zs3</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">trflux3</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">trs3</span><span class="p">)])</span>
+    <span class="k">if</span> <span class="n">test</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;surface transport/flux test #3: passed&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;depthavg test #3: failed&#39;</span><span class="p">)</span>
 </pre></div>
 
            </div>

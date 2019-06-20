@@ -77,21 +77,12 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">physoce package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-physoce.graph">physoce.graph module</a></li>
-<li><a class="reference internal" href="#module-physoce.io">physoce.io module</a></li>
-<li><a class="reference internal" href="#module-physoce.oceans">physoce.oceans module</a></li>
-<li><a class="reference internal" href="#module-physoce.stats">physoce.stats module</a></li>
-<li><a class="reference internal" href="#module-physoce.tseries">physoce.tseries module</a></li>
-<li><a class="reference internal" href="#module-physoce.util">physoce.util module</a></li>
-<li><a class="reference internal" href="#module-physoce">Module contents</a></li>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Importing modules</a></li>
 </ul>
-</li>
-</ul>
-</div>
+
             
           
         </div>
@@ -431,6 +422,18 @@ T - half-amplitude period (hours), default = 40</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="physoce.tseries.pl64">
+<code class="descclassname">physoce.tseries.</code><code class="descname">pl64</code><span class="sig-paren">(</span><em>x</em>, <em>dt=1</em>, <em>T=33</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/tseries.html#pl64"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.tseries.pl64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter a time series x with the PL64 filter. If x is 2D, the time series will be filtered along columns.</p>
+<p>Inputs:
+x - a numpy array to be filtered. 
+dt - sample interval (hours), default = 1
+T - half-amplitude period (hours), default = 33</p>
+<p>Output: numpy array of filtered time series, same size as input with ends NaN values at start and end.</p>
+<p>Reference: CODE-2: Moored Array and Large-Scale Data Report, WHOI 85-35</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="physoce.tseries.pl66">
 <code class="descclassname">physoce.tseries.</code><code class="descname">pl66</code><span class="sig-paren">(</span><em>x</em>, <em>dt=1</em>, <em>T=33</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/tseries.html#pl66"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.tseries.pl66" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter a time series x with the PL66 filter. If x is 2D, the time series will be filtered along columns.</p>
@@ -478,6 +481,49 @@ theta - rotation angle (degrees)</p>
 ur,vr - rotated vector components</p>
 <p>Example: 
 rot(1,0,90) returns (0,1)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.tseries.surface_flux">
+<code class="descclassname">physoce.tseries.</code><code class="descname">surface_flux</code><span class="sig-paren">(</span><em>u</em>, <em>z</em>, <em>tr</em>, <em>ssh=None</em>, <em>surface='mixed'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/tseries.html#surface_flux"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.tseries.surface_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute integrated surface-layer flux of a tracer tr, due to velocity component u with corresponding depths z.</p>
+<p>Integration is performed from the sea surface to the first zero crossing in the u profile.</p>
+<p>If u has units of m/s, and tr has units of C, result will have units of (C m^2)/s</p>
+<p>Designed to accomodate upward looking ADCP data, with moving sea surface and 
+blank bins with no data near surface. If no sea surface height is specified, 
+it is assumed to be at z=0 for all times.</p>
+<p>INPUT:
+u: velocity, 2D array with shape N rows, M columns
+z: measurement depths (z=0 is surface, negative below surface), array of length M
+tr: tracer values (N rows, M columns corresponding to depths z)
+ssh: sea surface height (optional, set to zero if None or where value is undefined)
+surface: boundary condition for surface</p>
+<blockquote>
+<div>‘mixed’ (default) or ‘extrap’</div></blockquote>
+<p>OUTPUT:
+trflux - tracer flux integrated from surface to first zero crossing of velocity profile
+tr0 - tracer value at first zero crossing of velocity profile</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="physoce.tseries.surface_transport">
+<code class="descclassname">physoce.tseries.</code><code class="descname">surface_transport</code><span class="sig-paren">(</span><em>u</em>, <em>z</em>, <em>ssh=None</em>, <em>surface='mixed'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/tseries.html#surface_transport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.tseries.surface_transport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute surface transport Us from velocity component u, with corresponding depths z.</p>
+<p>Integration is performed from the sea surface to the first zero crossing in the u profile.</p>
+<p>If u has units of m/s, Us will have units of m^2/s.</p>
+<p>Designed to accomodate upward looking ADCP data, with moving sea surface and 
+blank bins with no data near surface. If no sea surface height is specified, 
+it is assumed to be at z=0 for all times.</p>
+<p>INPUT:
+x: variable to be depth-averaged, 2D array with shape N rows, M columns
+z: measurement depths (z=0 is surface, negative below surface), array of length M
+ssh: sea surface height (optional, set to zero if None or where value is undefined)
+surface: boundary condition for surface</p>
+<blockquote>
+<div>‘mixed’ (default) or ‘extrap’</div></blockquote>
+<p>OUTPUT:
+Us - transport integrated from surface to first zero crossing of velocity profiled
+zs - depth of first zero crossing</p>
 </dd></dl>
 
 </div>
