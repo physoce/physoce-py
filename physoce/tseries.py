@@ -741,7 +741,7 @@ def lombscargle(t,x,ofac=4,hifac=1,t0=None,return_onesided=True,return_zero=Fals
     i = 1j # square root of -1
     N = len(x) # number of samples
 
-    wts = get_window(window,N)
+    wts = signal.get_window(window,N)
     wts = N*wts/np.sum(wts) # make sum of weights equal to N
 
     x = x*wts  # apply window
@@ -860,9 +860,9 @@ if __name__ == '__main__':
 
     test = (ubar == ubarb)
     if test.all():
-        print('depthavg test #1: passed')
+        print('depthavg test: passed')
     else:
-        raise ValueError('depthavg test #1: failed')
+        raise ValueError('depthavg test: failed')
 
     # surface transport test case #1
     u1= np.array([        np.nan,         np.nan,         np.nan,         np.nan,         np.nan,
@@ -885,9 +885,9 @@ if __name__ == '__main__':
 
     test = np.array([np.isfinite(Us).all(),np.isfinite(zs).all()])
     if test.all():
-        print('surface transport test #1: passed')
+        print('surface transport/flux test #1: passed')
     else:
-        raise ValueError('depthavg test #1: failed')
+        raise ValueError('surface transport/flux test #1: failed')
 
     # surface transport/flux test case #2
     u = np.array([[-1, -1, -1,  1,  1,  1],
@@ -908,7 +908,7 @@ if __name__ == '__main__':
     if test.all():
         print('surface transport/flux test #2: passed')
     else:
-        raise ValueError('depthavg test #2: failed')
+        raise ValueError('surface transport/flux test #2: failed')
 
     # surface transport/flux test case #3 (no zero crossing)
     z3 = np.array([-2. , -2.5, -3. , -3.5, -4. , -4.5, -5. , -5.5, -6. , -6.5, -7. ,
@@ -933,4 +933,31 @@ if __name__ == '__main__':
     if test.all():
         print('surface transport/flux test #3: passed')
     else:
-        raise ValueError('depthavg test #3: failed')
+        raise ValueError('surface transport/flux test #3: failed')
+
+    # test lomb-scargle function
+    # use example from Trauth - MATLAB Recipes for Earth Sciences (3rd Ed)
+    np.random.seed(0)
+    t = np.arange(0,1000,3)
+    t = t + np.random.randn(len(t))
+    t = np.sort(t)
+
+    x1 = (0.5*np.sin(2*np.pi*t/100) +
+          1.0*np.sin(2*np.pi*t/40) +
+          0.5*np.sin(2*np.pi*t/20))
+
+    x2 = (0.5*np.sin(2*np.pi*t/100) +
+          0.5*np.sin(2*np.pi*t/20))
+
+    x = x1
+    x[149:] = x2[149:]
+    x = x + 0.5*np.random.randn(len(x))
+
+    f,ftx,px_dft = lombscargle(t,x)
+    px_scipy = signal.lombscargle(t, x, f*2*np.pi)
+
+    test = np.isclose(px_dft,px_scipy)
+    if test.all():
+        print('Lomb-Scargle test: passed')
+    else:
+        raise ValueError('Lomb-Scargle test: failed')
