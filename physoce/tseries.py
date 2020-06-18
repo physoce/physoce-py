@@ -178,8 +178,9 @@ Matlab function: http://woodshole.er.usgs.gov/operations/sea-mat/RPSstuff-html/p
         v = np.imag(w)
 
     # Make sure inputs are numpy arrays
-    u = np.array(u)
-    v = np.array(v)
+    if type(u) is list:
+        u = np.array(u)
+        v = np.array(v)
 
     # only use finite values for covariance matrix
     ii = np.isfinite(u+v)
@@ -219,8 +220,9 @@ rot(1,0,90) returns (0,1)
     """
 
     # Make sure inputs are numpy arrays
-    u = np.array(u)
-    v = np.array(v)
+    if type(u) is list:
+        u = np.array(u)
+        v = np.array(v)
 
     w = u + 1j*v            # complex vector
     ang = theta*np.pi/180   # convert angle to radians
@@ -809,10 +811,10 @@ def lombscargle(t,x,ofac=4,hifac=1,t0=None,return_onesided=True,return_zero=Fals
 if __name__ == '__main__':
 
     # Test princax function
-    u = np.array([1,2,4,5,np.nan])
-    v = np.array([1,2,3,5,6])
+    u = [1,2,4,5,np.nan]
+    v = [1,2,3,5,6]
     theta,major,minor = princax(u,v)
-    theta,major,minor = princax(u+1j*v)
+    theta,major,minor = princax(np.array(u)+1j*np.array(v))
     mat_theta = 43.0138 # From Matlab output
     mat_major = 2.4763
     mat_minor = 0.3432
