@@ -368,8 +368,8 @@ Oceanography</p>
 <dt id="physoce.tseries.depthavg">
 <code class="descclassname">physoce.tseries.</code><code class="descname">depthavg</code><span class="sig-paren">(</span><em>x</em>, <em>z</em>, <em>h</em>, <em>ssh=None</em>, <em>surface='mixed'</em>, <em>bottom='zero'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/tseries.html#depthavg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.tseries.depthavg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute depth average of each row in 2D array x, with corresponding depths z.</p>
-<p>Designed to accomodate upward looking ADCP data, with moving sea surface and 
-blank bins with no data near surface. If no sea surface height is specified, 
+<p>Designed to accomodate upward looking ADCP data, with moving sea surface and
+blank bins with no data near surface. If no sea surface height is specified,
 it is assumed to be at z=0 for all times.</p>
 <p>x: variable to be depth-averaged, 2D array with shape N rows, M columns
 z: measurement depths (z=0 is surface, z=-h is bottom), array of length M
@@ -379,7 +379,7 @@ surface: boundary condition for surface</p>
 <blockquote>
 <div>‘mixed’ (default) or ‘extrap’</div></blockquote>
 <dl class="docutils">
-<dt>bottom:  boundary condition for bottom </dt>
+<dt>bottom:  boundary condition for bottom</dt>
 <dd>‘zero’ (default),’mixed’ or ‘extrap’</dd>
 </dl>
 </dd></dl>
@@ -414,7 +414,7 @@ N - width of window</p>
 <dd><p>Filter a time series x with cosine-Lanczos filter. If x is 2D, the time series will be filtered along columns.</p>
 <p>The default half amplitude period of 40 hours corresponds to a frequency of 0.6 cpd. A half amplitude period of 34.29h corresponds to 0.7 cpd. The 40 hour half amplitude period is more effective at reducing diurnal-band variability but shifts periods of variability in low passed time series to &gt;2 days.</p>
 <p>Inputs:
-x - a numpy array to be filtered. 
+x - a numpy array to be filtered.
 dt - sample interval (hours), default = 1
 T - half-amplitude period (hours), default = 40</p>
 <p>Output: numpy array of filtered time series, same size as input with ends NaN values at start and end.</p>
@@ -422,11 +422,67 @@ T - half-amplitude period (hours), default = 40</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="physoce.tseries.lombscargle">
+<code class="descclassname">physoce.tseries.</code><code class="descname">lombscargle</code><span class="sig-paren">(</span><em>t</em>, <em>x</em>, <em>ofac=4</em>, <em>hifac=1</em>, <em>t0=None</em>, <em>return_onesided=True</em>, <em>return_zero=False</em>, <em>window='boxcar'</em>, <em>scaling='classical'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/tseries.html#lombscargle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.tseries.lombscargle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the discrete Fourier transform and periodogram for unevenly-spaced
+data using the Lomb-Scargle periodogram. Follows methods outlined in Scargle
+(1989).</p>
+<p>INPUTS</p>
+<p>t - array of numerical time values (length N)
+x - array of data values, may be complex (length N)</p>
+<p>RETURNS</p>
+<p>f - array of frequencies
+ftx - array of complex coefficients</p>
+<blockquote>
+<div>discrete Fourier transform of x</div></blockquote>
+<dl class="docutils">
+<dt>px - periodogram of ftx, proportional to <a href="#id3"><span class="problematic" id="id4">|</span></a>ftx|**2</dt>
+<dd>with the default “classical” scaling used in Scargle (1989),
+px = (1/N)*|ftx|**2</dd>
+</dl>
+<p>OPTIONAL PARAMETERS</p>
+<dl class="docutils">
+<dt>ofac - oversampling parameter</dt>
+<dd>ratio of number of frequencies used to number of samples in x
+(default 4)</dd>
+<dt>hifac - high frequency parameter</dt>
+<dd>ratio of highest frequency to pseudo-Nyquist frequency
+(default 1)</dd>
+<dt>t0 - time origin</dt>
+<dd>reference point for phase calculation
+(default - None, first value in t array is used)</dd>
+<dt>return_onesided - boolean for returning a one-sided spectrum</dt>
+<dd>If True, return a one-sided spectrum for real data.
+If False return a two-sided spectrum for real data.
+Note that for complex data, a two-sided spectrum is always returned.
+(default - True)</dd>
+<dt>return_zero - boolean for evaluating zero frequency</dt>
+<dd>If True, include zero frequency. If False, do not include zero frequency.
+Uses expressions for the limit as frequency approaches zero, following
+Scargle (1989).
+(default - False)</dd>
+<dt>window - String specifying desired window to use. See <cite>scipy.signal.get_window</cite> for</dt>
+<dd>a list of windows and required parameters.</dd>
+<dt>scaling - Selects between computing the classical periodogram used by Scargle</dt>
+<dd>(‘classical’) or the power spectral density (‘density’). The classical
+periodogram  has units of x**2. The power  spectral density has units of x**2/f.
+The scaling determines how the periodogram px is calculated from the discrete
+Fourier transform ftx:
+‘classical’: px = (1/N)*|ftx|**2, where N is the number of samples
+‘density’: px = (deltat/N)*|ftx|**2, where deltat is the average time step</dd>
+</dl>
+<p>REFERENCE</p>
+<p>Scargle, J.D. (1989) Studies in astronomical time series analysis III: Fourier transforms,
+autocorrelation functions, and cross-correlation functions of unevenly spaced data. The
+Astrophysical Journal, 343, 874-887</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="physoce.tseries.pl64">
 <code class="descclassname">physoce.tseries.</code><code class="descname">pl64</code><span class="sig-paren">(</span><em>x</em>, <em>dt=1</em>, <em>T=33</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/tseries.html#pl64"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.tseries.pl64" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter a time series x with the PL64 filter. If x is 2D, the time series will be filtered along columns.</p>
 <p>Inputs:
-x - a numpy array to be filtered. 
+x - a numpy array to be filtered.
 dt - sample interval (hours), default = 1
 T - half-amplitude period (hours), default = 33</p>
 <p>Output: numpy array of filtered time series, same size as input with ends NaN values at start and end.</p>
@@ -438,7 +494,7 @@ T - half-amplitude period (hours), default = 33</p>
 <code class="descclassname">physoce.tseries.</code><code class="descname">pl66</code><span class="sig-paren">(</span><em>x</em>, <em>dt=1</em>, <em>T=33</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/physoce/tseries.html#pl66"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#physoce.tseries.pl66" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter a time series x with the PL66 filter. If x is 2D, the time series will be filtered along columns.</p>
 <p>Inputs:
-x - a numpy array to be filtered. 
+x - a numpy array to be filtered.
 dt - sample interval (hours), default = 1
 T - half-amplitude period (hours), default = 33</p>
 <p>Output: numpy array of filtered time series, same size as input with ends NaN values at start and end.</p>
@@ -474,12 +530,12 @@ Matlab function: <a class="reference external" href="http://woodshole.er.usgs.go
 <dd><p>Rotate a vector counter-clockwise OR rotate the coordinate system clockwise.</p>
 <p>Usage:
 ur,vr = rot(u,v,theta)</p>
-<p>Input: 
+<p>Input:
 u,v - vector components (e.g. u = eastward velocity, v = northward velocity)
 theta - rotation angle (degrees)</p>
 <p>Output:
 ur,vr - rotated vector components</p>
-<p>Example: 
+<p>Example:
 rot(1,0,90) returns (0,1)</p>
 </dd></dl>
 
@@ -489,8 +545,8 @@ rot(1,0,90) returns (0,1)</p>
 <dd><p>Compute integrated surface-layer flux of a tracer tr, due to velocity component u with corresponding depths z.</p>
 <p>Integration is performed from the sea surface to the first zero crossing in the u profile.</p>
 <p>If u has units of m/s, and tr has units of C, result will have units of (C m^2)/s</p>
-<p>Designed to accomodate upward looking ADCP data, with moving sea surface and 
-blank bins with no data near surface. If no sea surface height is specified, 
+<p>Designed to accomodate upward looking ADCP data, with moving sea surface and
+blank bins with no data near surface. If no sea surface height is specified,
 it is assumed to be at z=0 for all times.</p>
 <p>INPUT:
 u: velocity, 2D array with shape N rows, M columns
@@ -511,8 +567,8 @@ tr0 - tracer value at first zero crossing of velocity profile</p>
 <dd><p>Compute surface transport Us from velocity component u, with corresponding depths z.</p>
 <p>Integration is performed from the sea surface to the first zero crossing in the u profile.</p>
 <p>If u has units of m/s, Us will have units of m^2/s.</p>
-<p>Designed to accomodate upward looking ADCP data, with moving sea surface and 
-blank bins with no data near surface. If no sea surface height is specified, 
+<p>Designed to accomodate upward looking ADCP data, with moving sea surface and
+blank bins with no data near surface. If no sea surface height is specified,
 it is assumed to be at z=0 for all times.</p>
 <p>INPUT:
 x: variable to be depth-averaged, 2D array with shape N rows, M columns
