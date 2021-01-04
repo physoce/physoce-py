@@ -317,6 +317,7 @@ bottom:  boundary condition for bottom
     # ensure that inputs are arrays of floats
     x = np.array(x).astype('float')
     z = np.array(z).astype('float')
+    h = np.array(h).astype('float')
 
     if np.ndim(x) == 1:
         x = x[np.newaxis]
