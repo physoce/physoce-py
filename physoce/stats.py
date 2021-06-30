@@ -3,10 +3,10 @@ import numpy.ma as ma
 from scipy import stats as st
 
 def nancorr(x,y):
-    """ 
+    """
     r = nancorr(x,y)
     Calculate correlation matrix, treating NaN values as missing data
-    """	
+    """
     x_msk = ma.masked_invalid(x)
     y_msk = ma.masked_invalid(y)
     r = ma.corrcoef(x_msk,y_msk)
@@ -24,16 +24,16 @@ def maxcorr(x,y,**options):
     r is the correlation coefficient with the maximum absolute value
     lag is the lag of the maximum correlation (positive: y lags x)
     """
-    
+
     nrows = len(x)
     maxlag = int(np.floor(nrows/4))
     if ('maxlag' in options):
-        maxlag = options['maxlag']   
-    
-    # use masked arrays (mask NaNs)  
+        maxlag = options['maxlag']
+
+    # use masked arrays (mask NaNs)
     x = ma.masked_invalid(x)
     y = ma.masked_invalid(y)
-    
+
     lags = np.arange(-maxlag,maxlag+1)
     rs = np.zeros(np.shape(lags))
     for ni, lag in enumerate(lags):
@@ -44,25 +44,25 @@ def maxcorr(x,y,**options):
             rs[ni] = ma.corrcoef(x[:-lag],y[lag:])[0,1]
         else:
             rs[ni] = ma.corrcoef(x,y)[0,1]
-            
+
     ind = ma.argmax(np.abs(rs))
-    rmax = rs[ind] 
+    rmax = rs[ind]
     lag = lags[ind]
-        
+
     return (rmax,lag,ind)
-	
+
 def rsig(r,nu):
     """ p-value for correlation coefficient r, and degrees of freedom nu
 
     INPUTS:
     r - correlation coefficient
     nu - degrees of freedom (N-2)
-    
+
     OUTPUT:
     p - significance level/p-value
- 
+
     significance levels of 0.05 and 0.01 correspond with Appendix E in
-    Emery and Thomson (2004) Data Analysis Methods in Physical 
+    Emery and Thomson (2004) Data Analysis Methods in Physical
     Oceanography
     """
 
@@ -73,28 +73,55 @@ def rsig(r,nu):
     p = 2*(st.t.sf(t,nu))
 
     return p
-    
+
 def rcrit(nu,sig=0.05):
     """
     Critical r (correlation coefficient), given significance level
     and degrees of freedom.
-    
+
     INPUTS:
-    nu - degrees of freedom (N-2)        
+    nu - degrees of freedom (N-2)
     sig - significance level (default 0.05)
-    
+
     OUTPUT:
     rcrit - critical r value
-    
+
     Values for 0.05 and 0.01 correspond with Appendix E in
-    Emery and Thomson (2004) Data Analysis Methods in Physical 
+    Emery and Thomson (2004) Data Analysis Methods in Physical
     Oceanography
     """
-    
+
     # critical t value (this is equivalent to Matlab tinv function)
     t = st.t.ppf(1 - sig/2,nu)
-    
+
     # critical r value
     rc = t/np.sqrt(t**2+nu)
-    
+
     return rc
+
+def linreggm(x,y):
+    '''
+    Geometric mean (Type II) linear regression.
+
+    Returns slope and intercept where y = slope*x + intercept
+
+    References:
+    - Ricker (1984) Computation and uses of central trend lines, Can. J. Zool., 62, 1897-1905.
+    - Glover, Jenkins and Doney (2011) Modeling Methods for Marine Science. Section 3.2.5, Cambridge University Press.
+    '''
+
+    # least-squares regression of y on x
+    result_yx = st.linregress(x,y)
+
+    # least-squares regression of x on y
+    result_xy = st.linregress(y,x)
+
+    slope = np.sqrt(result_yx.slope/result_xy.slope)
+    slope = slope*np.sign(result_yx.slope)
+
+    xbar = np.mean(x)
+    ybar = np.mean(y)
+
+    intercept = ybar - slope*xbar
+
+    return slope,intercept
