@@ -16,18 +16,21 @@ Output: numpy array of filtered time series
     xf = _filt(x,wts)
     return xf
 
-def lancz(x,dt=1,T=40):
+def lancz(x=None,dt=1,T=40,return_weights=False):
     """
 Filter a time series x with cosine-Lanczos filter. If x is 2D, the time series will be filtered along columns.
 
 The default half amplitude period of 40 hours corresponds to a frequency of 0.6 cpd. A half amplitude period of 34.29h corresponds to 0.7 cpd. The 40 hour half amplitude period is more effective at reducing diurnal-band variability but shifts periods of variability in low passed time series to >2 days.
 
 Inputs:
-x - a numpy array to be filtered.
+x - a numpy array to be filtered
 dt - sample interval (hours), default = 1
 T - half-amplitude period (hours), default = 40
+return_weights - Boolean indicating whether to return the filter weights instead of a filtered time series, default = False
 
-Output: numpy array of filtered time series, same size as input with ends NaN values at start and end.
+Output:
+- numpy array of filtered time series, same size as input with ends NaN values at start and end (default)
+- numpy array of filter weights (if `return_weights=True` is specified)
 
 Reference: Emery and Thomson, 2004, Data Analysis Methods in Physical Oceanography. 2nd Ed., pp. 539-540. Section 5.10.7.4 - The Hanning window.
     """
@@ -41,19 +44,22 @@ Reference: Emery and Thomson, 2004, Data Analysis Methods in Physical Oceanograp
                         window='hanning',
                         nyq=cph/2.)
 
-    xf = _filt(x,wts)
+    xf = _filt(x,wts,return_weights)
     return xf
 
-def pl66(x,dt=1,T=33):
+def pl66(x=None,dt=1,T=33,return_weights=False):
     """
 Filter a time series x with the PL66 filter. If x is 2D, the time series will be filtered along columns.
 
 Inputs:
-x - a numpy array to be filtered.
+x - a numpy array to be filtered
 dt - sample interval (hours), default = 1
 T - half-amplitude period (hours), default = 33
+return_weights - Boolean indicating whether to return the filter weights instead of a filtered time series, default = False
 
-Output: numpy array of filtered time series, same size as input with ends NaN values at start and end.
+Output:
+- numpy array of filtered time series, same size as input with ends NaN values at start and end (default)
+- numpy array of filter weights (if `return_weights=True` is specified)
 
 Reference: Rosenfeld (1983), WHOI Technical Report 85-35
 Matlab code: http://woodshole.er.usgs.gov/operations/sea-mat/bobstuff-html/pl66tn.html
@@ -72,19 +78,22 @@ Matlab code: http://woodshole.er.usgs.gov/operations/sea-mat/bobstuff-html/pl66t
     # make symmetric
     wts = np.hstack((wts[::-1],2*fqn,wts))
 
-    xf = _filt(x,wts)
+    xf = _filt(x,wts,return_weights)
     return xf
 
-def pl64(x,dt=1,T=33):
+def pl64(x=None,dt=1,T=33,return_weights=False):
     """
 Filter a time series x with the PL64 filter. If x is 2D, the time series will be filtered along columns.
 
 Inputs:
-x - a numpy array to be filtered.
+x - a numpy array to be filtered
 dt - sample interval (hours), default = 1
 T - half-amplitude period (hours), default = 33
+return_weights - Boolean indicating whether to return the filter weights instead of a filtered time series, default = False
 
-Output: numpy array of filtered time series, same size as input with ends NaN values at start and end.
+Output:
+- numpy array of filtered time series, same size as input with ends NaN values at start and end (default)
+- numpy array of filter weights (if `return_weights=True` is specified)
 
 Reference: CODE-2: Moored Array and Large-Scale Data Report, WHOI 85-35
     """
@@ -102,10 +111,10 @@ Reference: CODE-2: Moored Array and Large-Scale Data Report, WHOI 85-35
     # make symmetric
     wts = np.hstack((wts[::-1],2*fqn,wts))
 
-    xf = _filt(x,wts)
+    xf = _filt(x,wts,return_weights)
     return xf
 
-def _filt(x,wts):
+def _filt(x,wts,return_weights):
     """
 Private function to filter a time series and pad the ends of the filtered time series with NaN values. For N weights, N/2 values are padded at each end of the time series. The filter weights are normalized so that the sum of weights = 1.
 
@@ -113,8 +122,11 @@ Inputs:
 
 x - the time series (may be 2d, will be filtered along columns)
 wts - the filter weights
+return_weights - if True, return the filter weights instead of a filtered time series (default: False)
 
-Output: the filtered time series
+Output:
+- the filtered time series (default)
+- filter weights (if `return_weights=True` is specified)
     """
 
     # convert to 2D array if necessary (general case)
@@ -125,27 +137,34 @@ Output: the filtered time series
     # normalize weights
     wtsn = wts*sum(wts)**-1 # normalize weights so sum = 1
 
-    # Convolve using 'direct' method. In older versions of scipy, this has to
-    # be specified because the default 'auto' method could decide to use the
-    # 'fft' method, which does not work for time series with NaNs. In newer
-    # versions, there is no method option.
-    try:
-        xf = signal.convolve(x,wtsn[:,np.newaxis],mode='same',method='direct')
-    except:
-        xf = signal.convolve(x,wtsn[:,np.newaxis],mode='same')
+    if return_weights==False:
+        # Convolve using 'direct' method. In older versions of scipy, this has to
+        # be specified because the default 'auto' method could decide to use the
+        # 'fft' method, which does not work for time series with NaNs. In newer
+        # versions, there is no method option.
+        try:
+            xf = signal.convolve(x,wtsn[:,np.newaxis],mode='same',method='direct')
+        except:
+            xf = signal.convolve(x,wtsn[:,np.newaxis],mode='same')
 
-    # note: np.convolve may be faster
-    # http://scipy.github.io/old-wiki/pages/Cookbook/ApplyFIRFilter
+        # note: np.convolve may be faster
+        # http://scipy.github.io/old-wiki/pages/Cookbook/ApplyFIRFilter
 
-    # pad ends of time series
-    nwts = len(wts) # number of filter weights
-    npad = int(np.ceil(0.5*nwts))
-    xf[:npad,:] = np.nan
-    xf[-npad:,:] = np.nan
+        # pad ends of time series
+        nwts = len(wts) # number of filter weights
+        npad = int(np.ceil(0.5*nwts))
+        xf[:npad,:] = np.nan
+        xf[-npad:,:] = np.nan
 
-    # return array with same number of dimensions as input
-    if ndims == 1:
-        xf = xf.flatten()
+        # return array with same number of dimensions as input
+        if ndims == 1:
+            xf = xf.flatten()
+    elif return_weights==True:
+        # return normalized weights instead of filtered time series
+        xf = wtsn
+    else:
+        raise('return_weights must be a Boolean')
+
     return xf
 
 def princax(u,v=None):
