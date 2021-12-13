@@ -44,6 +44,6 @@ Returns:
     # filter along specified dimension
     # follows example at: http://xarray.pydata.org/en/stable/user-guide/computation.html#rolling-window-operations
     weight = xr.DataArray(wts,dims=['window'])
-    daf = da.rolling({dim:len(weight)},center='True').construct(time='window').dot(weight)
+    daf = da.rolling({dim:len(weight)},center='True').construct({dim:'window'}).dot(weight)
 
     return daf
