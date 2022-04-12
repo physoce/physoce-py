@@ -114,7 +114,7 @@ Reference: CODE-2: Moored Array and Large-Scale Data Report, WHOI 85-35
     xf = _filt(x,wts,return_weights)
     return xf
 
-def _filt(x,wts,return_weights):
+def _filt(x,wts,return_weights=False):
     """
 Private function to filter a time series and pad the ends of the filtered time series with NaN values. For N weights, N/2 values are padded at each end of the time series. The filter weights are normalized so that the sum of weights = 1.
 
