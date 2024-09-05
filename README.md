@@ -8,8 +8,4 @@ To install the latest version using pip, run the following the terminal/command 
 
 `pip install git+https://github.com/physoce/physoce-py`
 
-This package can also be installed from the Python Package Index (PyPI), which is updated less frequently:
-
-`pip install physoce`
-
 Feedback and ideas for future work are welcome. Please feel free to submit an issue.
