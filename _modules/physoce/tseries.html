@@ -1,154 +1,84 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>physoce.tseries &mdash; physoce  documentation</title>
-  
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
   
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
-  
-    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
-
-  
-  <script src="../../_static/js/modernizr.min.js"></script>
-
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
-          
+        <div class="wy-side-nav-search" >
 
           
-            <a href="../../index.html" class="icon icon-home"> physoce
           
-
-          
+          <a href="../../index.html" class="icon icon-home">
+            physoce
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage.html">Importing modules</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">physoce</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../../index.html">Docs</a> &raquo;</li>
-        
-          <li><a href="../index.html">Module code</a> &raquo;</li>
-        
-      <li>physoce.tseries</li>
-    
-    
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">physoce.tseries</li>
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for physoce.tseries</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span><span class="p">,</span> <span class="n">signal</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span><span class="p">,</span> <span class="n">signal</span>
 
-<div class="viewcode-block" id="hanning"><a class="viewcode-back" href="../../physoce.html#physoce.tseries.hanning">[docs]</a><span class="k">def</span> <span class="nf">hanning</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">N</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="hanning">
+<a class="viewcode-back" href="../../physoce.html#physoce.tseries.hanning">[docs]</a>
+<span class="k">def</span> <span class="nf">hanning</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">N</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Filter a time series x with a Hanning window of length N. If x is 2D, the time series will be filtered along columns.</span>
 
 <span class="sd">Inputs:</span>
@@ -162,18 +92,24 @@
     <span class="n">xf</span> <span class="o">=</span> <span class="n">_filt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">wts</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">xf</span></div>
 
-<div class="viewcode-block" id="lancz"><a class="viewcode-back" href="../../physoce.html#physoce.tseries.lancz">[docs]</a><span class="k">def</span> <span class="nf">lancz</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">dt</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">T</span><span class="o">=</span><span class="mi">40</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="lancz">
+<a class="viewcode-back" href="../../physoce.html#physoce.tseries.lancz">[docs]</a>
+<span class="k">def</span> <span class="nf">lancz</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">dt</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">T</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span><span class="n">return_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Filter a time series x with cosine-Lanczos filter. If x is 2D, the time series will be filtered along columns.</span>
 
 <span class="sd">The default half amplitude period of 40 hours corresponds to a frequency of 0.6 cpd. A half amplitude period of 34.29h corresponds to 0.7 cpd. The 40 hour half amplitude period is more effective at reducing diurnal-band variability but shifts periods of variability in low passed time series to &gt;2 days.</span>
 
 <span class="sd">Inputs:</span>
-<span class="sd">x - a numpy array to be filtered.</span>
+<span class="sd">x - a numpy array to be filtered</span>
 <span class="sd">dt - sample interval (hours), default = 1</span>
 <span class="sd">T - half-amplitude period (hours), default = 40</span>
+<span class="sd">return_weights - Boolean indicating whether to return the filter weights instead of a filtered time series, default = False</span>
 
-<span class="sd">Output: numpy array of filtered time series, same size as input with ends NaN values at start and end.</span>
+<span class="sd">Output:</span>
+<span class="sd">- numpy array of filtered time series, same size as input with ends NaN values at start and end (default)</span>
+<span class="sd">- numpy array of filter weights (if `return_weights=True` is specified)</span>
 
 <span class="sd">Reference: Emery and Thomson, 2004, Data Analysis Methods in Physical Oceanography. 2nd Ed., pp. 539-540. Section 5.10.7.4 - The Hanning window.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -187,19 +123,25 @@
                         <span class="n">window</span><span class="o">=</span><span class="s1">&#39;hanning&#39;</span><span class="p">,</span>
                         <span class="n">nyq</span><span class="o">=</span><span class="n">cph</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span>
 
-    <span class="n">xf</span> <span class="o">=</span> <span class="n">_filt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">wts</span><span class="p">)</span>
+    <span class="n">xf</span> <span class="o">=</span> <span class="n">_filt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">wts</span><span class="p">,</span><span class="n">return_weights</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">xf</span></div>
 
-<div class="viewcode-block" id="pl66"><a class="viewcode-back" href="../../physoce.html#physoce.tseries.pl66">[docs]</a><span class="k">def</span> <span class="nf">pl66</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">dt</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">T</span><span class="o">=</span><span class="mi">33</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="pl66">
+<a class="viewcode-back" href="../../physoce.html#physoce.tseries.pl66">[docs]</a>
+<span class="k">def</span> <span class="nf">pl66</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">dt</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">T</span><span class="o">=</span><span class="mi">33</span><span class="p">,</span><span class="n">return_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Filter a time series x with the PL66 filter. If x is 2D, the time series will be filtered along columns.</span>
 
 <span class="sd">Inputs:</span>
-<span class="sd">x - a numpy array to be filtered.</span>
+<span class="sd">x - a numpy array to be filtered</span>
 <span class="sd">dt - sample interval (hours), default = 1</span>
 <span class="sd">T - half-amplitude period (hours), default = 33</span>
+<span class="sd">return_weights - Boolean indicating whether to return the filter weights instead of a filtered time series, default = False</span>
 
-<span class="sd">Output: numpy array of filtered time series, same size as input with ends NaN values at start and end.</span>
+<span class="sd">Output:</span>
+<span class="sd">- numpy array of filtered time series, same size as input with ends NaN values at start and end (default)</span>
+<span class="sd">- numpy array of filter weights (if `return_weights=True` is specified)</span>
 
 <span class="sd">Reference: Rosenfeld (1983), WHOI Technical Report 85-35</span>
 <span class="sd">Matlab code: http://woodshole.er.usgs.gov/operations/sea-mat/bobstuff-html/pl66tn.html</span>
@@ -218,19 +160,25 @@
     <span class="c1"># make symmetric</span>
     <span class="n">wts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">wts</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="mi">2</span><span class="o">*</span><span class="n">fqn</span><span class="p">,</span><span class="n">wts</span><span class="p">))</span>
 
-    <span class="n">xf</span> <span class="o">=</span> <span class="n">_filt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">wts</span><span class="p">)</span>
+    <span class="n">xf</span> <span class="o">=</span> <span class="n">_filt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">wts</span><span class="p">,</span><span class="n">return_weights</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">xf</span></div>
 
-<div class="viewcode-block" id="pl64"><a class="viewcode-back" href="../../physoce.html#physoce.tseries.pl64">[docs]</a><span class="k">def</span> <span class="nf">pl64</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">dt</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">T</span><span class="o">=</span><span class="mi">33</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="pl64">
+<a class="viewcode-back" href="../../physoce.html#physoce.tseries.pl64">[docs]</a>
+<span class="k">def</span> <span class="nf">pl64</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">dt</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">T</span><span class="o">=</span><span class="mi">33</span><span class="p">,</span><span class="n">return_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Filter a time series x with the PL64 filter. If x is 2D, the time series will be filtered along columns.</span>
 
 <span class="sd">Inputs:</span>
-<span class="sd">x - a numpy array to be filtered.</span>
+<span class="sd">x - a numpy array to be filtered</span>
 <span class="sd">dt - sample interval (hours), default = 1</span>
 <span class="sd">T - half-amplitude period (hours), default = 33</span>
+<span class="sd">return_weights - Boolean indicating whether to return the filter weights instead of a filtered time series, default = False</span>
 
-<span class="sd">Output: numpy array of filtered time series, same size as input with ends NaN values at start and end.</span>
+<span class="sd">Output:</span>
+<span class="sd">- numpy array of filtered time series, same size as input with ends NaN values at start and end (default)</span>
+<span class="sd">- numpy array of filter weights (if `return_weights=True` is specified)</span>
 
 <span class="sd">Reference: CODE-2: Moored Array and Large-Scale Data Report, WHOI 85-35</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -248,19 +196,23 @@
     <span class="c1"># make symmetric</span>
     <span class="n">wts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">wts</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="mi">2</span><span class="o">*</span><span class="n">fqn</span><span class="p">,</span><span class="n">wts</span><span class="p">))</span>
 
-    <span class="n">xf</span> <span class="o">=</span> <span class="n">_filt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">wts</span><span class="p">)</span>
+    <span class="n">xf</span> <span class="o">=</span> <span class="n">_filt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">wts</span><span class="p">,</span><span class="n">return_weights</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">xf</span></div>
 
-<span class="k">def</span> <span class="nf">_filt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">wts</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="k">def</span> <span class="nf">_filt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">wts</span><span class="p">,</span><span class="n">return_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Private function to filter a time series and pad the ends of the filtered time series with NaN values. For N weights, N/2 values are padded at each end of the time series. The filter weights are normalized so that the sum of weights = 1.</span>
 
 <span class="sd">Inputs:</span>
 
 <span class="sd">x - the time series (may be 2d, will be filtered along columns)</span>
 <span class="sd">wts - the filter weights</span>
+<span class="sd">return_weights - if True, return the filter weights instead of a filtered time series (default: False)</span>
 
-<span class="sd">Output: the filtered time series</span>
+<span class="sd">Output:</span>
+<span class="sd">- the filtered time series (default)</span>
+<span class="sd">- filter weights (if `return_weights=True` is specified)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># convert to 2D array if necessary (general case)</span>
@@ -271,31 +223,40 @@
     <span class="c1"># normalize weights</span>
     <span class="n">wtsn</span> <span class="o">=</span> <span class="n">wts</span><span class="o">*</span><span class="nb">sum</span><span class="p">(</span><span class="n">wts</span><span class="p">)</span><span class="o">**-</span><span class="mi">1</span> <span class="c1"># normalize weights so sum = 1</span>
 
-    <span class="c1"># Convolve using &#39;direct&#39; method. In older versions of scipy, this has to</span>
-    <span class="c1"># be specified because the default &#39;auto&#39; method could decide to use the</span>
-    <span class="c1"># &#39;fft&#39; method, which does not work for time series with NaNs. In newer</span>
-    <span class="c1"># versions, there is no method option.</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">xf</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">wtsn</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;direct&#39;</span><span class="p">)</span>
-    <span class="k">except</span><span class="p">:</span>
-        <span class="n">xf</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">wtsn</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">return_weights</span><span class="o">==</span><span class="kc">False</span><span class="p">:</span>
+        <span class="c1"># Convolve using &#39;direct&#39; method. In older versions of scipy, this has to</span>
+        <span class="c1"># be specified because the default &#39;auto&#39; method could decide to use the</span>
+        <span class="c1"># &#39;fft&#39; method, which does not work for time series with NaNs. In newer</span>
+        <span class="c1"># versions, there is no method option.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">xf</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">wtsn</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;direct&#39;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">xf</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">wtsn</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">)</span>
 
-    <span class="c1"># note: np.convolve may be faster</span>
-    <span class="c1"># http://scipy.github.io/old-wiki/pages/Cookbook/ApplyFIRFilter</span>
+        <span class="c1"># note: np.convolve may be faster</span>
+        <span class="c1"># http://scipy.github.io/old-wiki/pages/Cookbook/ApplyFIRFilter</span>
 
-    <span class="c1"># pad ends of time series</span>
-    <span class="n">nwts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">wts</span><span class="p">)</span> <span class="c1"># number of filter weights</span>
-    <span class="n">npad</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">nwts</span><span class="p">))</span>
-    <span class="n">xf</span><span class="p">[:</span><span class="n">npad</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-    <span class="n">xf</span><span class="p">[</span><span class="o">-</span><span class="n">npad</span><span class="p">:,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="c1"># pad ends of time series</span>
+        <span class="n">nwts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">wts</span><span class="p">)</span> <span class="c1"># number of filter weights</span>
+        <span class="n">npad</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">nwts</span><span class="p">))</span>
+        <span class="n">xf</span><span class="p">[:</span><span class="n">npad</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">xf</span><span class="p">[</span><span class="o">-</span><span class="n">npad</span><span class="p">:,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
 
-    <span class="c1"># return array with same number of dimensions as input</span>
-    <span class="k">if</span> <span class="n">ndims</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">xf</span> <span class="o">=</span> <span class="n">xf</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="c1"># return array with same number of dimensions as input</span>
+        <span class="k">if</span> <span class="n">ndims</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">xf</span> <span class="o">=</span> <span class="n">xf</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">return_weights</span><span class="o">==</span><span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># return normalized weights instead of filtered time series</span>
+        <span class="n">xf</span> <span class="o">=</span> <span class="n">wtsn</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span><span class="p">(</span><span class="s1">&#39;return_weights must be a Boolean&#39;</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">xf</span>
 
-<div class="viewcode-block" id="princax"><a class="viewcode-back" href="../../physoce.html#physoce.tseries.princax">[docs]</a><span class="k">def</span> <span class="nf">princax</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="princax">
+<a class="viewcode-back" href="../../physoce.html#physoce.tseries.princax">[docs]</a>
+<span class="k">def</span> <span class="nf">princax</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">Principal axes of a vector time series.</span>
 
 <span class="sd">Usage:</span>
@@ -347,8 +308,11 @@
 
     <span class="k">return</span> <span class="n">theta</span><span class="p">,</span><span class="n">major</span><span class="p">,</span><span class="n">minor</span></div>
 
-<div class="viewcode-block" id="rot"><a class="viewcode-back" href="../../physoce.html#physoce.tseries.rot">[docs]</a><span class="k">def</span> <span class="nf">rot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="n">theta</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="rot">
+<a class="viewcode-back" href="../../physoce.html#physoce.tseries.rot">[docs]</a>
+<span class="k">def</span> <span class="nf">rot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="n">theta</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Rotate a vector counter-clockwise OR rotate the coordinate system clockwise.</span>
 
 <span class="sd">Usage:</span>
@@ -377,8 +341,11 @@
     <span class="n">vr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">wr</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ur</span><span class="p">,</span><span class="n">vr</span></div>
 
-<div class="viewcode-block" id="fillgapwithnan"><a class="viewcode-back" href="../../physoce.html#physoce.tseries.fillgapwithnan">[docs]</a><span class="k">def</span> <span class="nf">fillgapwithnan</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">date</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="fillgapwithnan">
+<a class="viewcode-back" href="../../physoce.html#physoce.tseries.fillgapwithnan">[docs]</a>
+<span class="k">def</span> <span class="nf">fillgapwithnan</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">date</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Fill in missing data with NaN values. This is intended for a regular time series that has gaps where no data are reported.</span>
 
 <span class="sd">Although this function is intended for regularly-sampled time series (with gaps), it does allow for some slight irregularity (e.g. 13:00,14:00,15:00,15:59,16:59...)</span>
@@ -442,8 +409,11 @@
 
     <span class="k">return</span> <span class="p">(</span><span class="n">newx</span><span class="p">,</span><span class="n">newdate</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="depthavg"><a class="viewcode-back" href="../../physoce.html#physoce.tseries.depthavg">[docs]</a><span class="k">def</span> <span class="nf">depthavg</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">ssh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">surface</span><span class="o">=</span><span class="s1">&#39;mixed&#39;</span><span class="p">,</span><span class="n">bottom</span><span class="o">=</span><span class="s1">&#39;zero&#39;</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="depthavg">
+<a class="viewcode-back" href="../../physoce.html#physoce.tseries.depthavg">[docs]</a>
+<span class="k">def</span> <span class="nf">depthavg</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">ssh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">surface</span><span class="o">=</span><span class="s1">&#39;mixed&#39;</span><span class="p">,</span><span class="n">bottom</span><span class="o">=</span><span class="s1">&#39;zero&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">Compute depth average of each row in 2D array x, with corresponding depths z.</span>
 
 <span class="sd">Designed to accomodate upward looking ADCP data, with moving sea surface and</span>
@@ -463,6 +433,7 @@
     <span class="c1"># ensure that inputs are arrays of floats</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
     <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">h</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
@@ -549,8 +520,11 @@
 
     <span class="k">return</span> <span class="n">xda</span></div>
 
-<div class="viewcode-block" id="surface_transport"><a class="viewcode-back" href="../../physoce.html#physoce.tseries.surface_transport">[docs]</a><span class="k">def</span> <span class="nf">surface_transport</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="n">ssh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">surface</span><span class="o">=</span><span class="s1">&#39;mixed&#39;</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="surface_transport">
+<a class="viewcode-back" href="../../physoce.html#physoce.tseries.surface_transport">[docs]</a>
+<span class="k">def</span> <span class="nf">surface_transport</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="n">ssh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">surface</span><span class="o">=</span><span class="s1">&#39;mixed&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">Compute surface transport Us from velocity component u, with corresponding depths z.</span>
 
 <span class="sd">Integration is performed from the sea surface to the first zero crossing in the u profile.</span>
@@ -679,8 +653,11 @@
 
     <span class="k">return</span> <span class="n">Us</span><span class="p">,</span><span class="n">zs</span></div>
 
-<div class="viewcode-block" id="surface_flux"><a class="viewcode-back" href="../../physoce.html#physoce.tseries.surface_flux">[docs]</a><span class="k">def</span> <span class="nf">surface_flux</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="n">tr</span><span class="p">,</span><span class="n">ssh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">surface</span><span class="o">=</span><span class="s1">&#39;mixed&#39;</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="surface_flux">
+<a class="viewcode-back" href="../../physoce.html#physoce.tseries.surface_flux">[docs]</a>
+<span class="k">def</span> <span class="nf">surface_flux</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="n">tr</span><span class="p">,</span><span class="n">ssh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">surface</span><span class="o">=</span><span class="s1">&#39;mixed&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">Compute integrated surface-layer flux of a tracer tr, due to velocity component u with corresponding depths z.</span>
 
 <span class="sd">Integration is performed from the sea surface to the first zero crossing in the u profile.</span>
@@ -828,8 +805,11 @@
 
     <span class="k">return</span> <span class="n">trflux</span><span class="p">,</span> <span class="n">trs</span></div>
 
-<div class="viewcode-block" id="lombscargle"><a class="viewcode-back" href="../../physoce.html#physoce.tseries.lombscargle">[docs]</a><span class="k">def</span> <span class="nf">lombscargle</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">ofac</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">hifac</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">t0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">return_onesided</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">return_zero</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="s1">&#39;boxcar&#39;</span><span class="p">,</span><span class="n">scaling</span><span class="o">=</span><span class="s1">&#39;classical&#39;</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="lombscargle">
+<a class="viewcode-back" href="../../physoce.html#physoce.tseries.lombscargle">[docs]</a>
+<span class="k">def</span> <span class="nf">lombscargle</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">ofac</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">hifac</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">t0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">return_onesided</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">return_zero</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="s1">&#39;boxcar&#39;</span><span class="p">,</span><span class="n">scaling</span><span class="o">=</span><span class="s1">&#39;classical&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Compute the discrete Fourier transform and periodogram for unevenly-spaced</span>
 <span class="sd">    data using the Lomb-Scargle periodogram. Follows methods outlined in Scargle</span>
 <span class="sd">    (1989).</span>
@@ -953,6 +933,7 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Scaling argument not understood. Acceptable options are classical or density&#39;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">f</span><span class="p">,</span> <span class="n">ftx</span><span class="p">,</span> <span class="n">px</span></div>
+
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
 
@@ -1112,62 +1093,28 @@
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2018, Tom Connolly.
-
-    </p>
+    <p>&#169; Copyright 2018, Tom Connolly.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../',
-            VERSION:'',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../../_static/js/theme.js"></script>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
-          
-          SphinxRtdTheme.Navigation.enableSticky();
-          
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script> 
 
