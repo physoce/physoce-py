@@ -46,7 +46,7 @@ def tauxy_from_uv(u, v, z=3., drag='largepond', Ta=10.):
     '''
 
     spd = np.sqrt(u**2 + v**2)
-    taumag = ws.stress(spd, 3.8)
+    taumag = ws.stress(spd, z)
     theta = np.arctan2(v, u)
     taux = taumag*np.cos(theta)
     tauy = taumag*np.sin(theta)
