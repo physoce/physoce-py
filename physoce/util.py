@@ -40,7 +40,7 @@ def matlab2datetime64(datenum,unit='s'):
 def datetime64tomatlab(time):
     '''
     Convert numpy datetime64 to MATLAB datenum format.
-    MATLAB datenums are days since January 0, 0000 (proleptic Gregorian calendar).
+    MATLAB datenums are days since January 1, 0000 (proleptic Gregorian calendar).
     
     INPUTS:
     time : numpy.datetime64 or array of datetime64
