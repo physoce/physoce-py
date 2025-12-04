@@ -37,6 +37,42 @@ def matlab2datetime64(datenum,unit='s'):
     dt64 = datenum * np.timedelta64(daylength, unit) + origin
     return dt64
 
+def datetime64tomatlab(time):
+    '''
+    Convert numpy datetime64 to MATLAB datenum format.
+    MATLAB datenums are days since January 0, 0000 (proleptic Gregorian calendar).
+    
+    INPUTS:
+    time : numpy.datetime64 or array of datetime64
+        Input datetime(s) to convert
+        
+    OUTPUT:
+    float or numpy.ndarray
+        MATLAB datenum(s) - days since January 1, 0000
+    
+    EXAMPLE:
+    >>> import numpy as np
+    >>> dt = np.datetime64('2025-01-01T12:00:00')
+    >>> matlab_dn = datetime64tomatlab(dt)
+    >>> print(matlab_dn)
+    739242.5
+    '''
+    
+    # Convert to datetime64[us] to ensure microsecond precision
+    time_us = np.asarray(time).astype('datetime64[us]')
+    
+    # Unix epoch in MATLAB datenum (Jan 1, 1970 00:00:00)
+    matlab_epoch = 719529.0
+    
+    # Convert to days since Unix epoch
+    unix_epoch = np.datetime64('1970-01-01T00:00:00', 'us')
+    days_since_unix = (time_us - unix_epoch).astype('float64') / (1e6 * 86400)
+    
+    # Add MATLAB epoch offset
+    datenum = matlab_epoch + days_since_unix
+    
+    return datenum
+
 def haversine(lat, lon):
     """
     Calculate the great circle distances between a set of points
